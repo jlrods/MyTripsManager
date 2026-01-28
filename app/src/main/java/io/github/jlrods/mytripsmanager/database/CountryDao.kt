@@ -1,0 +1,27 @@
+package io.github.jlrods.mytripsmanager.database
+
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
+
+@Dao
+interface CountryDao {
+    @Query("SELECT * FROM countries ORDER BY name ASC")
+    fun getAllCountries(): Flow<List<Country>>
+
+    @Query("SELECT * FROM countries WHERE id = :id")
+    fun getCountry(id: Int): Flow<Country>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(country: Country)
+
+    @Update
+    suspend fun update(country: Country)
+
+    @Delete
+    suspend fun delete(country: Country)
+}
