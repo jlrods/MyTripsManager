@@ -213,7 +213,46 @@ object InitialData {
             ExpenseType(name = "Parking", logo = "ic_parking"),
             ExpenseType(name = "Drinks", logo = "ic_drinks"),
             ExpenseType(name = "Others", logo = "ic_others"),
-            ExpenseType(name = "Souvenirs", logo = "ic_souvenirs")
+            ExpenseType(name = "Souvenirs", logo = "ic_souvenirs"),
+            ExpenseType(name = "Tolls", logo = "ic_tolls")
+        )
+    }
+
+    fun getProviders(): List<Provider> {
+        return listOf(
+            Provider(name = "Ryanair", logo = "logo_ryanair"),
+            Provider(name = "Lufthansa", logo = "logo_lufthansa"),
+            Provider(name = "KLM", logo = "logo_klm"),
+            Provider(name = "Air France", logo = "logo_airfrance"),
+            Provider(name = "British Airways", logo = "logo_britishairways"),
+            Provider(name = "Iberia", logo = "logo_iberia"),
+            Provider(name = "Aer Lingus", logo = "logo_aerlingus"),
+            Provider(name = "easyJet", logo = "logo_easyjet"),
+            Provider(name = "Turkish Airlines", logo = "logo_turkishairlines"),
+            Provider(name = "Norwegian", logo = "logo_norwegian"),
+            Provider(name = "AirEuropa", logo = "logo_aireuropa"),
+            Provider(name = "Conviasa", logo = "logo_conviasa"),
+            Provider(name = "Copa Airlines", logo = "logo_copaairlines"),
+            Provider(name = "Ameerican Airlines", logo = "logo_americanairlines"),
+            Provider(name = "booking.com", logo = "logo_bookingcom"),
+            Provider(name = "loveholidays.com", logo = "logo_loveholidayscom"),
+            Provider(name = "Hertz", logo = "logo_hertz"),
+            Provider(name = "Avis", logo = "logo_avis"),
+            Provider(name = "Europcar", logo = "logo_europcar"),
+            Provider(name = "Sixt", logo = "logo_sixt"),
+            Provider(name = "Enterprise", logo = "logo_enterprise"),
+            Provider(name = "Goldcar", logo = "logo_goldcar"),
+            Provider(name = "Dublin Airport", logo = "logo_dublinairport"),
+            Provider(name = "Shannon Airport", logo = "logo_shannonairport"),
+            Provider(name = "Cork Airport", logo = "logo_corkairport"),
+            Provider(name = "Bus Eireann", logo = "logo_buseireann"),
+            Provider(name = "Go-Ahead Ireland", logo = "logo_goaheadireland"),
+            Provider(name = "Dublin Bus", logo = "logo_dublinbus"),
+            Provider(name = "VHI Healthcare", logo = "logo_vhihealthcare"),
+            Provider(name = "Laya Healthcare", logo = "logo_layahealthcare"),
+            Provider(name = "Irish Life Health", logo = "logo_irishlifehealth"),
+            Provider(name = "Aviva", logo = "logo_aviva"),
+            Provider(name = "AXA", logo = "logo_axa")
         )
     }
 }

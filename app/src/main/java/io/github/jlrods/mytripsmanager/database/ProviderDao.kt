@@ -19,6 +19,9 @@ interface ProviderDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(provider: Provider)
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(providers: List<Provider>)
+
     @Update
     suspend fun update(provider: Provider)
 

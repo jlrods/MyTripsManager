@@ -46,6 +46,7 @@ abstract class MyTripsManagerDb : RoomDatabase() {
                             CoroutineScope(Dispatchers.IO).launch {
                                 getDatabase(context).countryDao().insertAll(InitialData.getCountries())
                                 getDatabase(context).expenseTypeDao().insertAll(InitialData.getExpenseTypes())
+                                getDatabase(context).providerDao().insertAll(InitialData.getProviders())
                             }
                         }
                     })
