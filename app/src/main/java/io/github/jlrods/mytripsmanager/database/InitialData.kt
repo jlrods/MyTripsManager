@@ -52,7 +52,7 @@ object InitialData {
             Country(name = "Denmark", currency = "DKK", flag = "dk"),
             Country(name = "Djibouti", currency = "DJF", flag = "dj"),
             Country(name = "Dominica", currency = "XCD", flag = "dm"),
-            Country(name = "Dominican Republic", currency = "DOP", flag = "do"),
+            Country(name = "Dominican Republic", currency = "DOP", flag = "dom"),
             Country(name = "Ecuador", currency = "USD", flag = "ec"),
             Country(name = "Egypt", currency = "EGP", flag = "eg"),
             Country(name = "El Salvador", currency = "USD", flag = "sv"),
