@@ -19,6 +19,9 @@ interface CountryDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(country: Country)
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(countries: List<Country>)
+
     @Update
     suspend fun update(country: Country)
 
