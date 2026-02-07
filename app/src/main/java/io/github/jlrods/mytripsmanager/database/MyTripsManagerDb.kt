@@ -45,6 +45,7 @@ abstract class MyTripsManagerDb : RoomDatabase() {
                             // Use a coroutine to insert the initial data on a background thread
                             CoroutineScope(Dispatchers.IO).launch {
                                 getDatabase(context).countryDao().insertAll(InitialData.getCountries())
+                                getDatabase(context).expenseTypeDao().insertAll(InitialData.getExpenseTypes())
                             }
                         }
                     })

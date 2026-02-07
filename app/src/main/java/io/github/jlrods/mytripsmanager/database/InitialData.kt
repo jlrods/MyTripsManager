@@ -200,4 +200,19 @@ object InitialData {
             Country(name = "Zimbabwe", currency = "ZWL", flag = "zw")
         )
     }
+
+    fun getExpenseTypes(): List<ExpenseType> {
+        return listOf(
+            ExpenseType(name = "Accommodation", logo = "ic_accommodation"),
+            ExpenseType(name = "Airline Tickets", logo = "ic_airline_tickets"),
+            ExpenseType(name = "Food", logo = "ic_food"),
+            ExpenseType(name = "Transport", logo = "ic_transport"),
+            ExpenseType(name = "Leisure", logo = "ic_leisure"),
+            ExpenseType(name = "Insurance", logo = "ic_insurance"),
+            ExpenseType(name = "Health", logo = "ic_health"),
+            ExpenseType(name = "Parking", logo = "ic_parking"),
+            ExpenseType(name = "Drinks", logo = "ic_drinks"),
+            ExpenseType(name = "Others", logo = "ic_others")
+        )
+    }
 }
