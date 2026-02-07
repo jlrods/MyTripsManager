@@ -212,7 +212,8 @@ object InitialData {
             ExpenseType(name = "Health", logo = "ic_health"),
             ExpenseType(name = "Parking", logo = "ic_parking"),
             ExpenseType(name = "Drinks", logo = "ic_drinks"),
-            ExpenseType(name = "Others", logo = "ic_others")
+            ExpenseType(name = "Others", logo = "ic_others"),
+            ExpenseType(name = "Souvenirs", logo = "ic_souvenirs")
         )
     }
 }

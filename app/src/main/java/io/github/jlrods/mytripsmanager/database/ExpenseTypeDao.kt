@@ -19,6 +19,9 @@ interface ExpenseTypeDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(expenseType: ExpenseType)
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(expenseTypes: List<ExpenseType>)
+
     @Update
     suspend fun update(expenseType: ExpenseType)
 
