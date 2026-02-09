@@ -19,6 +19,9 @@ interface CityDao {
     @Query("SELECT * FROM cities WHERE countryId = :countryId ORDER BY name ASC")
     fun getCitiesByCountry(countryId: Int): Flow<List<City>>
 
+    @Query("SELECT * FROM cities WHERE name LIKE :name ORDER BY name ASC")
+    fun getCitiesByName(name: String): Flow<List<City>>
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(city: City)
 
