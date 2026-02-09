@@ -16,6 +16,9 @@ interface ProviderDao {
     @Query("SELECT * FROM providers WHERE id = :id")
     fun getProvider(id: Int): Flow<Provider>
 
+    @Query("SELECT * FROM providers WHERE name = :name")
+    fun getProviderByName(name: String): Flow<Provider>
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(provider: Provider)
 

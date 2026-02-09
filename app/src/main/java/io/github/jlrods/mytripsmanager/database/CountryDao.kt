@@ -16,6 +16,9 @@ interface CountryDao {
     @Query("SELECT * FROM countries WHERE id = :id")
     fun getCountry(id: Int): Flow<Country>
 
+    @Query("SELECT * FROM countries WHERE name = :name")
+    fun getCountryByName(name: String): Flow<Country>
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(country: Country)
 
