@@ -233,7 +233,7 @@ object InitialData {
             Provider(name = "AirEuropa", logo = "logo_aireuropa"),
             Provider(name = "Conviasa", logo = "logo_conviasa"),
             Provider(name = "Copa Airlines", logo = "logo_copaairlines"),
-            Provider(name = "Ameerican Airlines", logo = "logo_americanairlines"),
+            Provider(name = "American Airlines", logo = "logo_americanairlines"),
             Provider(name = "booking.com", logo = "logo_bookingcom"),
             Provider(name = "loveholidays.com", logo = "logo_loveholidayscom"),
             Provider(name = "Hertz", logo = "logo_hertz"),
