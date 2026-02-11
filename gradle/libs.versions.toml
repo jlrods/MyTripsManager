@@ -30,6 +30,7 @@ androidx-compose-material3-adaptive-navigation-suite = { group = "androidx.compo
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version = "2.10.0" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

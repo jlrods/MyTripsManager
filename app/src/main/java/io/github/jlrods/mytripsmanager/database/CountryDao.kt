@@ -10,6 +10,10 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CountryDao {
+
+    @Query("SELECT * FROM countries")
+    suspend fun getAllCountriesOnce(): List<Country>
+
     @Query("SELECT * FROM countries ORDER BY name ASC")
     fun getAllCountries(): Flow<List<Country>>
 

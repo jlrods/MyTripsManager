@@ -201,6 +201,32 @@ object InitialData {
         )
     }
 
+    fun getEuropeanCities(countryIdMap: Map<String, Int>): List<City> {
+        return listOf(
+            City(name = "Paris", countryId = countryIdMap["France"]!!),
+            City(name = "Rome", countryId = countryIdMap["Italy"]!!),
+            City(name = "Madrid", countryId = countryIdMap["Spain"]!!),
+            City(name = "Barcelona", countryId = countryIdMap["Spain"]!!),
+            City(name = "Berlin", countryId = countryIdMap["Germany"]!!),
+            City(name = "Munich", countryId = countryIdMap["Germany"]!!),
+            City(name = "Amsterdam", countryId = countryIdMap["Netherlands"]!!),
+            City(name = "Brussels", countryId = countryIdMap["Belgium"]!!),
+            City(name = "Vienna", countryId = countryIdMap["Austria"]!!),
+            City(name = "Prague", countryId = countryIdMap["Czechia"]!!),
+            City(name = "Budapest", countryId = countryIdMap["Hungary"]!!),
+            City(name = "Lisbon", countryId = countryIdMap["Portugal"]!!),
+            City(name = "Athens", countryId = countryIdMap["Greece"]!!),
+            City(name = "Copenhagen", countryId = countryIdMap["Denmark"]!!),
+            City(name = "Stockholm", countryId = countryIdMap["Sweden"]!!),
+            City(name = "Oslo", countryId = countryIdMap["Norway"]!!),
+            City(name = "Helsinki", countryId = countryIdMap["Finland"]!!),
+            City(name = "Dublin", countryId = countryIdMap["Ireland"]!!),
+            City(name = "Zurich", countryId = countryIdMap["Switzerland"]!!),
+            City(name = "Venice", countryId = countryIdMap["Italy"]!!)
+        )
+    }
+
+
     fun getExpenseTypes(): List<ExpenseType> {
         return listOf(
             ExpenseType(name = "Accommodation", logo = "ic_accommodation"),
@@ -233,7 +259,7 @@ object InitialData {
             Provider(name = "AirEuropa", logo = "logo_aireuropa"),
             Provider(name = "Conviasa", logo = "logo_conviasa"),
             Provider(name = "Copa Airlines", logo = "logo_copaairlines"),
-            Provider(name = "Ameerican Airlines", logo = "logo_americanairlines"),
+            Provider(name = "American Airlines", logo = "logo_americanairlines"),
             Provider(name = "booking.com", logo = "logo_bookingcom"),
             Provider(name = "loveholidays.com", logo = "logo_loveholidayscom"),
             Provider(name = "Hertz", logo = "logo_hertz"),
