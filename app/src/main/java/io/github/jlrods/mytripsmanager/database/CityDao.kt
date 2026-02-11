@@ -23,6 +23,9 @@ interface CityDao {
     fun getCitiesByName(name: String): Flow<List<City>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(cities: List<City>)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(city: City)
 
     @Update

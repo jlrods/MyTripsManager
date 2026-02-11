@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
         Destination::class,
         Expense::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class MyTripsManagerDb : RoomDatabase() {
@@ -48,6 +48,14 @@ abstract class MyTripsManagerDb : RoomDatabase() {
                                     database.countryDao().insertAll(InitialData.getCountries())
                                     database.expenseTypeDao().insertAll(InitialData.getExpenseTypes())
                                     database.providerDao().insertAll(InitialData.getProviders())
+
+                                    // Now fetch countries with generated IDs
+                                    val countries = database.countryDao().getAllCountriesOnce()
+                                    val countryIdMap = countries.associate { it.name to it.id }
+                                    // Insert cities using real IDs
+                                    database.cityDao().insertAll(
+                                        InitialData.getEuropeanCities(countryIdMap)
+                                    )
                                 }
                             }
                         }
