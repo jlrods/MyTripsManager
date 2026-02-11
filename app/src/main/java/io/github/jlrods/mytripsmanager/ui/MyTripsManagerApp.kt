@@ -18,10 +18,25 @@ import io.github.jlrods.mytripsmanager.MainScreen
 import io.github.jlrods.mytripsmanager.ui.components.MyTripsManagerTopAppBar
 import io.github.jlrods.mytripsmanager.ui.navigation.AppDestinations
 
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import io.github.jlrods.mytripsmanager.database.MyTripsManagerDb
+import io.github.jlrods.mytripsmanager.data.CityRepository
+import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModel
+import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModelFactory
+import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesScreen
+
 @PreviewScreenSizes
 @Composable
 fun MyTripsManagerApp() {
+
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.TRIPS) }
+
+    val context = LocalContext.current
+    val database = MyTripsManagerDb.getDatabase(context)//TODO: This will be moved to Aplicatoin class later on.
+    val repository = CityRepository(database.cityDao())
+    val factory = CitiesViewModelFactory(repository)
+    val citiesViewModel: CitiesViewModel = viewModel(factory = factory)
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
@@ -29,7 +44,6 @@ fun MyTripsManagerApp() {
                 item(
                     icon = {
                         Icon(
-
                             painter = painterResource(it.icon),
                             contentDescription = it.label
                         )
@@ -45,7 +59,22 @@ fun MyTripsManagerApp() {
             modifier = Modifier.fillMaxSize(),
             topBar = { MyTripsManagerTopAppBar() }
         ) { innerPadding ->
-            MainScreen(modifier = Modifier.padding(innerPadding))
+
+            when (currentDestination) {
+                AppDestinations.TRIPS -> {
+                    MainScreen(modifier = Modifier.padding(innerPadding))
+                }
+
+                AppDestinations.CITIES -> {
+                    CitiesScreen(
+                        viewModel = citiesViewModel
+                    )
+                }
+
+                AppDestinations.PROVIDERS -> {
+                    MainScreen(modifier = Modifier.padding(innerPadding))
+                }
+            }
         }
     }
 }

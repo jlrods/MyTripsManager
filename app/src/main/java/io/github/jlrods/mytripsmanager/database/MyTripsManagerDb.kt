@@ -38,15 +38,17 @@ abstract class MyTripsManagerDb : RoomDatabase() {
         fun getDatabase(context: Context): MyTripsManagerDb {
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(context, MyTripsManagerDb::class.java, "my_trips_manager_database")
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration()// TODO: Remove this in production
                     .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
                             // Use a coroutine to insert the initial data on a background thread
                             CoroutineScope(Dispatchers.IO).launch {
-                                getDatabase(context).countryDao().insertAll(InitialData.getCountries())
-                                getDatabase(context).expenseTypeDao().insertAll(InitialData.getExpenseTypes())
-                                getDatabase(context).providerDao().insertAll(InitialData.getProviders())
+                                Instance?.let { database ->
+                                    database.countryDao().insertAll(InitialData.getCountries())
+                                    database.expenseTypeDao().insertAll(InitialData.getExpenseTypes())
+                                    database.providerDao().insertAll(InitialData.getProviders())
+                                }
                             }
                         }
                     })
