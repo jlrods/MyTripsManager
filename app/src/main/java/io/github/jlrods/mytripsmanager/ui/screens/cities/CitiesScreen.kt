@@ -11,11 +11,14 @@ import androidx.compose.ui.Modifier
 
 @Composable
 fun CitiesScreen(
-    viewModel: CitiesViewModel
+    viewModel: CitiesViewModel,
+    modifier: Modifier = Modifier
 ) {
     val cities by viewModel.cities.collectAsState()
 
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
+    LazyColumn(
+        modifier = modifier.fillMaxSize()
+    ) {
         items(cities) { city ->
             Text(text = city.name)
         }

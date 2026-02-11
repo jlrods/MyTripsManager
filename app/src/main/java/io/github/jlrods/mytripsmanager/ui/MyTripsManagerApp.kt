@@ -67,9 +67,11 @@ fun MyTripsManagerApp() {
 
                 AppDestinations.CITIES -> {
                     CitiesScreen(
-                        viewModel = citiesViewModel
+                        viewModel = citiesViewModel,
+                        modifier = Modifier.padding(innerPadding)
                     )
                 }
+
 
                 AppDestinations.PROVIDERS -> {
                     MainScreen(modifier = Modifier.padding(innerPadding))
