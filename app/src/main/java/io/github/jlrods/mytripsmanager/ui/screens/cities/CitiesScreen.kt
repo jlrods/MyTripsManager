@@ -1,5 +1,6 @@
 package io.github.jlrods.mytripsmanager.ui.screens.cities
 
+import android.util.Log
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,27 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import io.github.jlrods.mytripsmanager.database.CityWithCountry
-import io.github.jlrods.mytripsmanager.ui.utils.getFlagRes
-
-//@Composable
-//fun CitiesScreen(
-//    viewModel: CitiesViewModel,
-//    modifier: Modifier = Modifier
-//) {
-//    val cities by viewModel.cities.collectAsState()
-//
-//    LazyColumn(
-//        modifier = modifier.fillMaxSize()
-//    ) {
-//        items(cities) { city ->
-//            Text(text = city.name)
-//        }
-//    }
-//}
 
 @Composable
 fun CitiesScreen(
@@ -43,7 +26,6 @@ fun CitiesScreen(
     modifier: Modifier = Modifier
 ) {
     val cities by viewModel.cities.collectAsState()
-    val context = LocalContext.current
 
     LazyColumn(
         modifier = modifier.fillMaxSize()
@@ -58,15 +40,8 @@ fun CitiesScreen(
 @Composable
 fun CityRow(item: CityWithCountry) {
 
-    val context = LocalContext.current
-    val flagResId = getFlagRes(item.country.flag) {
-
-        context.resources.getIdentifier(
-            item.country.flag,
-            "drawable",
-            context.packageName
-        )
-    }
+    val flagResId = item.country.flagRes
+    Log.d("FLAG_DEBUG", "Flag: ${item.country.flagRes} -> $flagResId")
 
     Row(
         modifier = Modifier
