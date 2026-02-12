@@ -72,7 +72,6 @@ fun MyTripsManagerApp() {
                     )
                 }
 
-
                 AppDestinations.PROVIDERS -> {
                     MainScreen(modifier = Modifier.padding(innerPadding))
                 }

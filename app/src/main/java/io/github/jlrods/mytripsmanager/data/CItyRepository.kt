@@ -2,13 +2,16 @@ package io.github.jlrods.mytripsmanager.data
 
 import io.github.jlrods.mytripsmanager.database.City
 import io.github.jlrods.mytripsmanager.database.CityDao
+import io.github.jlrods.mytripsmanager.database.CityWithCountry
 import kotlinx.coroutines.flow.Flow
 
 class CityRepository(
     private val cityDao: CityDao
 ) {
 
-    val allCities: Flow<List<City>> = cityDao.getAllCities()
+    val allCities: Flow<List<CityWithCountry>> =
+        cityDao.getCitiesWithCountry()
+
 
     fun getCitiesByCountry(countryId: Int): Flow<List<City>> {
         return cityDao.getCitiesByCountry(countryId)
