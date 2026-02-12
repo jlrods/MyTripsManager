@@ -27,6 +27,9 @@ interface CityDao {
     @Query("SELECT * FROM cities ORDER BY name ASC")
     fun getCitiesWithCountry(): Flow<List<CityWithCountry>>
 
+    @Query("SELECT * FROM countries ORDER BY name ASC")
+    fun getAllCountries(): Flow<List<Country>>
+
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(cities: List<City>)

@@ -17,7 +17,6 @@ import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import io.github.jlrods.mytripsmanager.MainScreen
 import io.github.jlrods.mytripsmanager.ui.components.MyTripsManagerTopAppBar
 import io.github.jlrods.mytripsmanager.ui.navigation.AppDestinations
-
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.jlrods.mytripsmanager.database.MyTripsManagerDb
@@ -25,6 +24,7 @@ import io.github.jlrods.mytripsmanager.data.CityRepository
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModel
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModelFactory
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesScreen
+import io.github.jlrods.mytripsmanager.ui.screens.cities.AddCityScreen
 
 @PreviewScreenSizes
 @Composable
@@ -68,9 +68,21 @@ fun MyTripsManagerApp() {
                 AppDestinations.CITIES -> {
                     CitiesScreen(
                         viewModel = citiesViewModel,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        onAddCityClick = {
+                            currentDestination = AppDestinations.ADD_CITY
+                        }
                     )
                 }
+
+                AppDestinations.ADD_CITY -> AddCityScreen(
+                    modifier = Modifier.padding(innerPadding),
+                    viewModel = citiesViewModel,
+                    onSave = {
+                        currentDestination = AppDestinations.CITIES
+                    }
+                )
+
 
                 AppDestinations.PROVIDERS -> {
                     MainScreen(modifier = Modifier.padding(innerPadding))

@@ -2,6 +2,8 @@ package io.github.jlrods.mytripsmanager.ui.utils
 
 import io.github.jlrods.mytripsmanager.R
 
+
+//TODO: To be deleted as map is not required any longer.
 fun getFlagRes(code: String, function: () -> Int): Int {
     return when (code.lowercase()) {
         "ad" -> R.drawable.ad

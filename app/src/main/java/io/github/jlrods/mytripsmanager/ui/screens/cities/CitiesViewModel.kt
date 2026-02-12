@@ -8,9 +8,10 @@ import io.github.jlrods.mytripsmanager.database.CityWithCountry
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class CitiesViewModel(
-    repository: CityRepository
+    private val repository: CityRepository
 ) : ViewModel() {
 
     val cities: StateFlow<List<CityWithCountry>> =
@@ -20,4 +21,17 @@ class CitiesViewModel(
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = emptyList()
             )
+    val countries = repository.getAllCountries()
+
+    fun insertCity(name: String, countryId: Int) {
+        viewModelScope.launch {
+            repository.insert(
+                City(
+                    name = name,
+                    countryId = countryId
+                )
+            )
+        }
+    }
+
 }

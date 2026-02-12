@@ -8,5 +8,6 @@ enum class AppDestinations(
 ) {
     TRIPS("Trips", icon = (R.drawable.ic_trip)),
     CITIES("Cities", R.drawable.ic_city),
-    PROVIDERS("Providers", R.drawable.ic_provider)
+    PROVIDERS("Providers", R.drawable.ic_provider),
+    ADD_CITY("Add City", R.drawable.ic_city)
 }
