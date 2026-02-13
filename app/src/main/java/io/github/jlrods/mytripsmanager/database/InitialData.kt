@@ -5,7 +5,7 @@ import io.github.jlrods.mytripsmanager.R
 object InitialData {
     fun getCountries(): List<Country> {
         return listOf(
-            Country(name = "Afghanistan", currency = "AFN", flagRes = R.drawable.af),
+            Country(name = "Afghanistan", currency = "AFN", flagRes = R.drawable.afganistan),
             Country(name = "Albania", currency = "ALL", flagRes = R.drawable.al),
             Country(name = "Algeria", currency = "DZD", flagRes = R.drawable.dz),
             Country(name = "Andorra", currency = "EUR", flagRes = R.drawable.ad),
@@ -16,7 +16,7 @@ object InitialData {
             Country(name = "Australia", currency = "AUD", flagRes = R.drawable.au),
             Country(name = "Austria", currency = "EUR", flagRes = R.drawable.at),
             Country(name = "Azerbaijan", currency = "AZN", flagRes = R.drawable.az),
-            Country(name = "Bahamas", currency = "BSD", flagRes = R.drawable.bs),
+            Country(name = "Bahamas", currency = "BSD", flagRes = R.drawable.bahamas),
             Country(name = "Bahrain", currency = "BHD", flagRes = R.drawable.bh),
             Country(name = "Bangladesh", currency = "BDT", flagRes = R.drawable.bd),
             Country(name = "Barbados", currency = "BBD", flagRes = R.drawable.bb),
@@ -54,7 +54,7 @@ object InitialData {
             Country(name = "Denmark", currency = "DKK", flagRes = R.drawable.dk),
             Country(name = "Djibouti", currency = "DJF", flagRes = R.drawable.dj),
             Country(name = "Dominica", currency = "XCD", flagRes = R.drawable.ic_flag),
-            Country(name = "Dominican Republic", currency = "DOP", flagRes = R.drawable.dom),
+            Country(name = "Dominican Republic", currency = "DOP", flagRes = R.drawable.dominicana),
             Country(name = "Ecuador", currency = "USD", flagRes = R.drawable.ec),
             Country(name = "Egypt", currency = "EGP", flagRes = R.drawable.eg),
             Country(name = "El Salvador", currency = "USD", flagRes = R.drawable.sv),

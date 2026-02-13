@@ -8,7 +8,7 @@ fun getFlagRes(code: String, function: () -> Int): Int {
     return when (code.lowercase()) {
         "ad" -> R.drawable.ad
         "ae" -> R.drawable.ae
-        "af" -> R.drawable.af
+        "af" -> R.drawable.afganistan
         "ag" -> R.drawable.ag
         "al" -> R.drawable.al
         "am" -> R.drawable.am
@@ -29,7 +29,7 @@ fun getFlagRes(code: String, function: () -> Int): Int {
         "bn" -> R.drawable.bn
         "bo" -> R.drawable.bo
         "br" -> R.drawable.br
-        "bs" -> R.drawable.bs
+        "bs" -> R.drawable.bahamas
         "bt" -> R.drawable.bt
         "bw" -> R.drawable.bw
         "by" -> R.drawable.by
@@ -52,7 +52,7 @@ fun getFlagRes(code: String, function: () -> Int): Int {
         "de" -> R.drawable.de
         "dj" -> R.drawable.dj
         "dk" -> R.drawable.dk
-        "do" -> R.drawable.dom
+        "do" -> R.drawable.dominicana
         "dz" -> R.drawable.dz
         "ec" -> R.drawable.ec
         "ee" -> R.drawable.ee
