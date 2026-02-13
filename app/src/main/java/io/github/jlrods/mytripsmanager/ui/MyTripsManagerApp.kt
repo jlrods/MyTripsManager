@@ -34,13 +34,15 @@ fun MyTripsManagerApp() {
 
     val context = LocalContext.current
     val database = MyTripsManagerDb.getDatabase(context)//TODO: This will be moved to Aplicatoin class later on.
-    val repository = CityRepository(database.cityDao())
+    val repository = CityRepository(database.cityDao(), database.countryDao())
     val factory = CitiesViewModelFactory(repository)
     val citiesViewModel: CitiesViewModel = viewModel(factory = factory)
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
-            AppDestinations.entries.forEach {
+            AppDestinations.entries
+                .filter { it.showInBottomNav }
+                .forEach {
                 item(
                     icon = {
                         Icon(

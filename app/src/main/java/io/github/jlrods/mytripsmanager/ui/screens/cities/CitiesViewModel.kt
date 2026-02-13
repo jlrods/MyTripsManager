@@ -25,7 +25,7 @@ class CitiesViewModel(
 
     fun insertCity(name: String, countryId: Int) {
         viewModelScope.launch {
-            repository.insert(
+            repository.insertCity(
                 City(
                     name = name,
                     countryId = countryId

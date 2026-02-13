@@ -4,15 +4,16 @@ import io.github.jlrods.mytripsmanager.database.City
 import io.github.jlrods.mytripsmanager.database.CityDao
 import io.github.jlrods.mytripsmanager.database.CityWithCountry
 import io.github.jlrods.mytripsmanager.database.Country
+import io.github.jlrods.mytripsmanager.database.CountryDao
 import kotlinx.coroutines.flow.Flow
 
 class CityRepository(
-    private val cityDao: CityDao
+    private val cityDao: CityDao,
+    private val countryDao: CountryDao
 ) {
 
     val allCities: Flow<List<CityWithCountry>> =
         cityDao.getCitiesWithCountry()
-
 
     fun getCitiesByCountry(countryId: Int): Flow<List<City>> {
         return cityDao.getCitiesByCountry(countryId)
@@ -23,10 +24,10 @@ class CityRepository(
     }
 
     fun getAllCountries(): Flow<List<Country>>{
-        return cityDao.getAllCountries()
+        return countryDao.getAllCountries()
     }
 
-    suspend fun insert(city: City) {
+    suspend fun insertCity(city: City) {
         cityDao.insert(city)
     }
 
@@ -38,7 +39,4 @@ class CityRepository(
         cityDao.delete(city)
     }
 
-    suspend fun insertCity(city: City){
-        cityDao.insert(city)
-    }
 }
