@@ -5,7 +5,7 @@ import io.github.jlrods.mytripsmanager.R
 object InitialData {
     fun getCountries(): List<Country> {
         return listOf(
-            Country(name = "Afghanistan", currency = "AFN", flagRes = R.drawable.afganistan),
+            Country(name = "Afghanistan", currency = "AFN", flagRes = R.drawable.af),
             Country(name = "Albania", currency = "ALL", flagRes = R.drawable.al),
             Country(name = "Algeria", currency = "DZD", flagRes = R.drawable.dz),
             Country(name = "Andorra", currency = "EUR", flagRes = R.drawable.ad),
@@ -16,7 +16,7 @@ object InitialData {
             Country(name = "Australia", currency = "AUD", flagRes = R.drawable.au),
             Country(name = "Austria", currency = "EUR", flagRes = R.drawable.at),
             Country(name = "Azerbaijan", currency = "AZN", flagRes = R.drawable.az),
-            Country(name = "Bahamas", currency = "BSD", flagRes = R.drawable.bahamas),
+            Country(name = "Bahamas", currency = "BSD", flagRes = R.drawable.bs),
             Country(name = "Bahrain", currency = "BHD", flagRes = R.drawable.bh),
             Country(name = "Bangladesh", currency = "BDT", flagRes = R.drawable.bd),
             Country(name = "Barbados", currency = "BBD", flagRes = R.drawable.bb),
@@ -53,8 +53,8 @@ object InitialData {
             Country(name = "Czechia", currency = "CZK", flagRes = R.drawable.cz),
             Country(name = "Denmark", currency = "DKK", flagRes = R.drawable.dk),
             Country(name = "Djibouti", currency = "DJF", flagRes = R.drawable.dj),
-            Country(name = "Dominica", currency = "XCD", flagRes = R.drawable.ic_flag),
-            Country(name = "Dominican Republic", currency = "DOP", flagRes = R.drawable.dominicana),
+            Country(name = "Dominica", currency = "XCD", flagRes = R.drawable.dm),
+            Country(name = "Dominican Republic", currency = "DOP", flagRes = R.drawable.dom),
             Country(name = "Ecuador", currency = "USD", flagRes = R.drawable.ec),
             Country(name = "Egypt", currency = "EGP", flagRes = R.drawable.eg),
             Country(name = "El Salvador", currency = "USD", flagRes = R.drawable.sv),
@@ -68,7 +68,7 @@ object InitialData {
             Country(name = "France", currency = "EUR", flagRes = R.drawable.fr),
             Country(name = "Gabon", currency = "XAF", flagRes = R.drawable.ga),
             Country(name = "Gambia", currency = "GMD", flagRes = R.drawable.gm),
-            Country(name = "Georgia", currency = "GEL", flagRes = R.drawable.ic_flag),
+            Country(name = "Georgia", currency = "GEL", flagRes = R.drawable.ge),
             Country(name = "Germany", currency = "EUR", flagRes = R.drawable.de),
             Country(name = "Ghana", currency = "GHS", flagRes = R.drawable.gh),
             Country(name = "Greece", currency = "EUR", flagRes = R.drawable.gr),
