@@ -44,4 +44,16 @@ class CitiesViewModel(
         }
     }
 
+    fun deleteCity(city: City) {
+        viewModelScope.launch {
+            repository.delete(city)
+        }
+    }
+
+    fun restoreCity(city: City) {
+        viewModelScope.launch {
+            repository.insertCity(city)
+        }
+    }
+
 }

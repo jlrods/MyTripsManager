@@ -1,9 +1,9 @@
 package io.github.jlrods.mytripsmanager.ui.screens.cities
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,23 +16,34 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import io.github.jlrods.mytripsmanager.database.CityWithCountry
+import kotlinx.coroutines.launch
 
 @Composable
 fun CitiesScreen(
@@ -41,8 +52,10 @@ fun CitiesScreen(
     onAddCityClick: () -> Unit
 ) {
     val cities by viewModel.cities.collectAsState()
-
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         modifier = modifier,
         floatingActionButton = {
             FloatingActionButton(
@@ -61,9 +74,57 @@ fun CitiesScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            items(cities) { item ->
-                CityRow(item)
+            items(
+                items = cities,
+                key = { it.city.id }
+            ) { item ->
+
+                val dismissState = rememberSwipeToDismissBoxState(
+                    confirmValueChange = { value ->
+                        if (value == SwipeToDismissBoxValue.EndToStart) {
+
+                            viewModel.deleteCity(item.city)
+
+                            scope.launch {
+                                val result = snackbarHostState.showSnackbar(
+                                    message = "${item.city.name.replaceFirstChar { it.uppercase() }} deleted",
+                                    actionLabel = "UNDO"
+                                )
+
+                                if (result == SnackbarResult.ActionPerformed) {
+                                    viewModel.restoreCity(item.city)
+                                }
+                            }
+
+                            false // 🔴 IMPORTANT: DO NOT let SwipeToDismiss manage removal
+                        } else {
+                            false
+                        }
+                    }
+                )
+
+                SwipeToDismissBox(
+                    state = dismissState,
+                    enableDismissFromStartToEnd = false,
+                    enableDismissFromEndToStart = true,
+                    backgroundContent = {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 20.dp),
+                            contentAlignment = Alignment.CenterEnd
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Delete"
+                            )
+                        }
+                    }
+                ) {
+                    CityRow(item)
+                }
             }
+
         }
     }
 
