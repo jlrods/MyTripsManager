@@ -35,7 +35,7 @@ interface CityDao {
     suspend fun insertAll(cities: List<City>)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(city: City)
+    suspend fun insert(city: City): Long
 
     @Update
     suspend fun update(city: City)

@@ -97,7 +97,7 @@ fun CityRow(item: CityWithCountry) {
             Spacer(modifier = Modifier.width(16.dp))
 
             Text(
-                text = item.city.name,
+                text = item.city.name.trim().replaceFirstChar { it.uppercase() },
                 style = MaterialTheme.typography.bodyLarge
             )
         }

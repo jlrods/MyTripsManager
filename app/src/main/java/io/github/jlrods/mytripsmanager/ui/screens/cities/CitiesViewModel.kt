@@ -23,14 +23,24 @@ class CitiesViewModel(
             )
     val countries = repository.getAllCountries()
 
-    fun insertCity(name: String, countryId: Int) {
+    fun insertCity(
+        name: String,
+        countryId: Int,
+        onDuplicate: () -> Unit,
+        onSuccess: () -> Unit
+    ) {
         viewModelScope.launch {
-            repository.insertCity(
-                City(
-                    name = name,
-                    countryId = countryId
+                val result = repository.insertCity(
+                    City(
+                        name = name.trim().lowercase(),
+                        countryId = countryId
+                    )
                 )
-            )
+                if (result == -1L) {
+                    onDuplicate()
+                } else {
+                    onSuccess()
+                }
         }
     }
 

@@ -1,6 +1,7 @@
 package io.github.jlrods.mytripsmanager.ui.screens.cities
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -36,6 +37,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 
 
@@ -50,7 +52,7 @@ fun AddCityScreen(
     var selectedCountry by remember { mutableStateOf<Country?>(null) }
     var showCountryDialog by remember { mutableStateOf(false) }
     val countries by viewModel.countries.collectAsState(initial = emptyList())
-
+    val context = LocalContext.current
     Scaffold(
         modifier = modifier
     ) { innerPadding ->
@@ -71,7 +73,10 @@ fun AddCityScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
-                value = selectedCountry?.name ?: "",
+                value = selectedCountry?.name
+                    ?.trim()
+                    ?.replaceFirstChar { it.uppercase() }
+                    ?: "",
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Country") },
@@ -101,10 +106,19 @@ fun AddCityScreen(
                 onClick = {
                     if (cityName.isNotBlank() && selectedCountry != null) {
                         viewModel.insertCity(
-                            cityName,
-                            selectedCountry!!.id
+                            name = cityName,
+                            countryId = selectedCountry!!.id,
+                            onDuplicate = {
+                                Toast.makeText(
+                                    context,
+                                    "City already exists for this country",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            },
+                            onSuccess = {
+                                onSave()
+                            }
                         )
-                        onSave()
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -143,19 +157,6 @@ fun CountryPickerDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-//                LazyColumn {
-//                    items(filteredCountries) { country ->
-//                        Text(
-//                            text = country.name,
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .clickable {
-//                                    onCountrySelected(country)
-//                                }
-//                                .padding(12.dp)
-//                        )
-//                    }
-//                }
                 LazyColumn {
                     items(filteredCountries) { country ->
 
@@ -180,7 +181,7 @@ fun CountryPickerDialog(
                             Spacer(modifier = Modifier.width(12.dp))
 
                             Text(
-                                text = country.name,
+                                text = country.name.trim().replaceFirstChar { it.uppercase() },
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         }

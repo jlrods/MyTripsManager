@@ -27,8 +27,8 @@ class CityRepository(
         return countryDao.getAllCountries()
     }
 
-    suspend fun insertCity(city: City) {
-        cityDao.insert(city)
+    suspend fun insertCity(city: City) : Long {
+        return cityDao.insert(city)
     }
 
     suspend fun update(city: City) {
