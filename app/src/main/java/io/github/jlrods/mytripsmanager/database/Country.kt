@@ -9,5 +9,5 @@ data class Country(
     val id: Int = 0,
     val name: String,
     val currency: String,
-    val flag: String
+    val flagRes: Int
 )

@@ -4,19 +4,68 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.jlrods.mytripsmanager.data.CityRepository
 import io.github.jlrods.mytripsmanager.database.City
+import io.github.jlrods.mytripsmanager.database.CityWithCountry
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class CitiesViewModel(
-    repository: CityRepository
+    private val repository: CityRepository
 ) : ViewModel() {
 
-    val cities: StateFlow<List<City>> =
+    val cities: StateFlow<List<CityWithCountry>> =
         repository.allCities
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = emptyList()
             )
+    val countries = repository.getAllCountries()
+
+    fun insertCity(
+        name: String,
+        countryId: Int,
+        onDuplicate: () -> Unit,
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch {
+                val result = repository.insertCity(
+                    City(
+                        name = name.trim().lowercase(),
+                        countryId = countryId
+                    )
+                )
+                if (result == -1L) {
+                    onDuplicate()
+                } else {
+                    onSuccess()
+                }
+        }
+    }
+
+    fun deleteCity(city: City) {
+        viewModelScope.launch {
+            repository.delete(city)
+        }
+    }
+
+    fun restoreCity(city: City) {
+        viewModelScope.launch {
+            repository.insertCity(city)
+        }
+    }
+
+    fun updateCity(id: Int, name: String, countryId: Int) {
+        viewModelScope.launch {
+            repository.update(
+                City(
+                    id = id,
+                    name = name.trim().lowercase(),
+                    countryId = countryId
+                )
+            )
+        }
+    }
+
 }
