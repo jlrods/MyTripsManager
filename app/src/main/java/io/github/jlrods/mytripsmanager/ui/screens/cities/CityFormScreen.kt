@@ -36,6 +36,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
@@ -163,6 +164,38 @@ fun CityFormScreen(
                     )
                 }
             }
+        }
+        if (showDeleteDialog) {
+            AlertDialog(
+                onDismissRequest = { showDeleteDialog = false },
+                title = { Text("Delete City") },
+                text = { Text("Are you sure you want to delete this city?") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            cityToEdit?.let {
+                                viewModel.deleteCity(it.city)
+                            }
+                            showDeleteDialog = false
+                            Toast.makeText(
+                                context,
+                                "City deleted",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            onSave()
+                        }
+                    ) {
+                        Text("Delete")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { showDeleteDialog = false }
+                    ) {
+                        Text("Cancel")
+                    }
+                }
+            )
         }
     }
 }
