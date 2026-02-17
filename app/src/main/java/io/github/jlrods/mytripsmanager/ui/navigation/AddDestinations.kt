@@ -12,5 +12,6 @@ enum class AppDestinations(
     PROVIDERS("Providers", R.drawable.ic_provider,true),
     ADD_CITY("Add City", R.drawable.ic_city,false),
 
-    EDIT_CITY("Edit City", R.drawable.ic_city,false)
+    EDIT_CITY("Edit City", R.drawable.ic_city,false),
+
 }

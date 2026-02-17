@@ -22,15 +22,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.jlrods.mytripsmanager.database.MyTripsManagerDb
 import io.github.jlrods.mytripsmanager.data.CityRepository
+import io.github.jlrods.mytripsmanager.data.ProviderRepository
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModel
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModelFactory
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesScreen
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CityFormScreen
+import io.github.jlrods.mytripsmanager.ui.screens.providers.ProvidersScreen
+import io.github.jlrods.mytripsmanager.ui.screens.providers.ProvidersViewModel
+import io.github.jlrods.mytripsmanager.ui.screens.providers.ProvidersViewModelFactory
 
 @PreviewScreenSizes
 @Composable
 fun MyTripsManagerApp() {
 
+    //City screen initialization
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.TRIPS) }
     var selectedCityId by rememberSaveable { mutableStateOf<Int?>(null) }
     val context = LocalContext.current
@@ -38,6 +43,13 @@ fun MyTripsManagerApp() {
     val repository = CityRepository(database.cityDao(), database.countryDao())
     val factory = CitiesViewModelFactory(repository)
     val citiesViewModel: CitiesViewModel = viewModel(factory = factory)
+
+    //Provider screen initialization
+    val providerRepository = ProviderRepository(database.providerDao())
+    val providersFactory = ProvidersViewModelFactory(providerRepository)
+    val providersViewModel: ProvidersViewModel =
+        viewModel(factory = providersFactory)
+
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
@@ -112,7 +124,10 @@ fun MyTripsManagerApp() {
 
 
                 AppDestinations.PROVIDERS -> {
-                    MainScreen(modifier = Modifier.padding(innerPadding))
+                    ProvidersScreen(
+                        viewModel = providersViewModel,
+                        modifier = Modifier.padding(innerPadding)
+                    )
                 }
             }
         }
