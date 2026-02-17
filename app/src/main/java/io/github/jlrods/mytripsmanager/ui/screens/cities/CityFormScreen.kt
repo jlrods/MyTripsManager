@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import io.github.jlrods.mytripsmanager.database.Country
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -66,6 +67,7 @@ fun CityFormScreen(
         it.id == selectedCountryId
     }
     val context = LocalContext.current
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier
@@ -76,7 +78,6 @@ fun CityFormScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-
             OutlinedTextField(
                 value = cityName,
                 onValueChange = { cityName = it },
@@ -149,7 +150,18 @@ fun CityFormScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(if (cityToEdit == null) "Save City" else "Update City")
+                Text(if (isEditMode) "Update City" else "Save City")
+            }
+            if (isEditMode) {
+                IconButton(
+                    modifier = Modifier.align(Alignment.End),
+                    onClick = { showDeleteDialog = true }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete City"
+                    )
+                }
             }
         }
     }
@@ -217,3 +229,4 @@ fun CountryPickerDialog(
         }
     )
 }
+

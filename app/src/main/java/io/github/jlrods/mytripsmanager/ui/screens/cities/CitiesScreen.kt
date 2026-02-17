@@ -23,7 +23,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -32,7 +31,6 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -42,7 +40,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import io.github.jlrods.mytripsmanager.database.CityWithCountry
 import kotlinx.coroutines.launch
 
@@ -82,11 +79,12 @@ fun CitiesScreen(
             ) { item ->
 
                 val dismissState = rememberSwipeToDismissBoxState(
+                    positionalThreshold = { totalDistance ->
+                        totalDistance * 0.75f   // require 60% swipe
+                    },
                     confirmValueChange = { value ->
                         if (value == SwipeToDismissBoxValue.EndToStart) {
-
                             viewModel.deleteCity(item.city)
-
                             scope.launch {
                                 val result = snackbarHostState.showSnackbar(
                                     message = "${item.city.name.replaceFirstChar { it.uppercase() }} deleted",
