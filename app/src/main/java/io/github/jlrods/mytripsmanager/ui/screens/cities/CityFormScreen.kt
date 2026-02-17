@@ -35,24 +35,38 @@ import io.github.jlrods.mytripsmanager.database.Country
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import io.github.jlrods.mytripsmanager.database.CityWithCountry
 
 
 @Composable
-fun AddCityScreen(
+fun CityFormScreen(
     modifier: Modifier = Modifier,
     viewModel: CitiesViewModel,
+    cityToEdit: CityWithCountry? = null,
     onSave: () -> Unit
 ) {
 
-    var cityName by remember { mutableStateOf("") }
-    var selectedCountry by remember { mutableStateOf<Country?>(null) }
+    val isEditMode = cityToEdit != null
+
+    var cityName by rememberSaveable(cityToEdit) {
+        mutableStateOf(cityToEdit?.city?.name?.trim()?.replaceFirstChar { it.uppercase() } ?: "")
+    }
+
+    var selectedCountryId by rememberSaveable(cityToEdit) {
+        mutableStateOf(cityToEdit?.country?.id)
+    }
     var showCountryDialog by remember { mutableStateOf(false) }
     val countries by viewModel.countries.collectAsState(initial = emptyList())
+    var selectedCountry = countries.firstOrNull {
+        it.id == selectedCountryId
+    }
     val context = LocalContext.current
+
     Scaffold(
         modifier = modifier
     ) { innerPadding ->
@@ -105,25 +119,37 @@ fun AddCityScreen(
             Button(
                 onClick = {
                     if (cityName.isNotBlank() && selectedCountry != null) {
-                        viewModel.insertCity(
-                            name = cityName,
-                            countryId = selectedCountry!!.id,
-                            onDuplicate = {
-                                Toast.makeText(
-                                    context,
-                                    "City already exists for this country",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            },
-                            onSuccess = {
-                                onSave()
+
+                        if (!isEditMode) {
+                            // ADD MODE
+                            viewModel.insertCity(
+                                name = cityName,
+                                countryId = selectedCountry.id,
+                                onDuplicate = {
+                                    Toast.makeText(
+                                        context,
+                                        "City already exists for this country",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                },
+                                onSuccess = { onSave() }
+                            )
+                        } else {
+                            // EDIT MODE
+                            cityToEdit?.let {
+                                viewModel.updateCity(
+                                    id = it.city.id,
+                                    name = cityName,
+                                    countryId = selectedCountry.id,
+                                )
                             }
-                        )
+                            onSave()
+                        }
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Save City")
+                Text(if (cityToEdit == null) "Save City" else "Update City")
             }
         }
     }

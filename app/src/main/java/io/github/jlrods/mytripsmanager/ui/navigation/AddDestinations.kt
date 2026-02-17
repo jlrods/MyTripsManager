@@ -10,5 +10,7 @@ enum class AppDestinations(
     TRIPS("Trips", icon = (R.drawable.ic_trip),true),
     CITIES("Cities", R.drawable.ic_city,true),
     PROVIDERS("Providers", R.drawable.ic_provider,true),
-    ADD_CITY("Add City", R.drawable.ic_city,false)
+    ADD_CITY("Add City", R.drawable.ic_city,false),
+
+    EDIT_CITY("Edit City", R.drawable.ic_city,false)
 }

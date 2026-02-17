@@ -42,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import io.github.jlrods.mytripsmanager.database.CityWithCountry
 import kotlinx.coroutines.launch
 
@@ -49,7 +50,8 @@ import kotlinx.coroutines.launch
 fun CitiesScreen(
     viewModel: CitiesViewModel,
     modifier: Modifier = Modifier,
-    onAddCityClick: () -> Unit
+    onAddCityClick: () -> Unit,
+    onCityClick: (CityWithCountry) -> Unit
 ) {
     val cities by viewModel.cities.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -121,7 +123,7 @@ fun CitiesScreen(
                         }
                     }
                 ) {
-                    CityRow(item)
+                    CityRow(item, onCityClick)
                 }
             }
 
@@ -131,7 +133,8 @@ fun CitiesScreen(
 }
 
 @Composable
-fun CityRow(item: CityWithCountry) {
+fun CityRow(item: CityWithCountry,
+            onClick: (CityWithCountry) -> Unit) {
 
     Card(
         modifier = Modifier
@@ -142,7 +145,7 @@ fun CityRow(item: CityWithCountry) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { } //TODO: Add navigation to City Detail
+                .clickable {onClick(item)}
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center

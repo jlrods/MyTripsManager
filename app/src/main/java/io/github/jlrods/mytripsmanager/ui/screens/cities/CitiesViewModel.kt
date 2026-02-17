@@ -56,4 +56,16 @@ class CitiesViewModel(
         }
     }
 
+    fun updateCity(id: Int, name: String, countryId: Int) {
+        viewModelScope.launch {
+            repository.update(
+                City(
+                    id = id,
+                    name = name.trim().lowercase(),
+                    countryId = countryId
+                )
+            )
+        }
+    }
+
 }
