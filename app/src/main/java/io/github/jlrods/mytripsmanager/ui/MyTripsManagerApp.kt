@@ -27,6 +27,7 @@ import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModel
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModelFactory
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesScreen
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CityFormScreen
+import io.github.jlrods.mytripsmanager.ui.screens.providers.ProviderFormScreen
 import io.github.jlrods.mytripsmanager.ui.screens.providers.ProvidersScreen
 import io.github.jlrods.mytripsmanager.ui.screens.providers.ProvidersViewModel
 import io.github.jlrods.mytripsmanager.ui.screens.providers.ProvidersViewModelFactory
@@ -122,11 +123,23 @@ fun MyTripsManagerApp() {
                     )
                 }
 
-
                 AppDestinations.PROVIDERS -> {
                     ProvidersScreen(
                         viewModel = providersViewModel,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        onAddProviderClick = {
+                            currentDestination = AppDestinations.ADD_PROVIDER
+                        }
+                    )
+                }
+
+                AppDestinations.ADD_PROVIDER -> {
+                    ProviderFormScreen(
+                        viewModel = providersViewModel,
+                        modifier = Modifier.padding(innerPadding),
+                        onSave = {
+                            currentDestination = AppDestinations.PROVIDERS
+                        }
                     )
                 }
             }

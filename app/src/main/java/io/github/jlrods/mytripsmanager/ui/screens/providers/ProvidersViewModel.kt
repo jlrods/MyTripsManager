@@ -17,4 +17,15 @@ class ProvidersViewModel(
             repository.delete(provider)
         }
     }
+
+    fun insertProvider(name: String, logoRes: Int?) {
+        viewModelScope.launch {
+            repository.insert(
+                Provider(
+                    name = name,
+                    logoRes = logoRes
+                )
+            )
+        }
+    }
 }
