@@ -18,12 +18,13 @@ class ProvidersViewModel(
         }
     }
 
-    fun insertProvider(name: String, logoRes: Int?) {
+    fun insertProvider(name: String, logoRes: Int?, logoUri: String?) {
         viewModelScope.launch {
             repository.insert(
                 Provider(
                     name = name,
-                    logoRes = logoRes
+                    logoRes = logoRes,
+                    logoUri = logoUri
                 )
             )
         }
