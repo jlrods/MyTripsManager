@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 
 
 @Composable
@@ -72,18 +73,37 @@ fun ProvidersScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
 
-                        provider.logoRes?.let { logo ->
-                            Image(
-                                painter = painterResource(id = logo),
-                                contentDescription = provider.name,
-                                modifier = Modifier
+//                        provider.logoRes?.let { logo ->
+//                            Image(
+//                                painter = painterResource(id = logo),
+//                                contentDescription = provider.name,
+//                                modifier = Modifier
+//                                    .size(40.dp)
+//                                    .clip(RoundedCornerShape(6.dp))
+//                            )
+//                        }
+                        when {
+                            provider.logoRes != null -> {
+                                Image(
+                                    painter = painterResource(provider.logoRes),
+                                    contentDescription = provider.name,
+                                    modifier = Modifier
                                     .size(40.dp)
                                     .clip(RoundedCornerShape(6.dp))
-                            )
+                                )
+                            }
 
-                            Spacer(modifier = Modifier.width(16.dp))
+                            provider.logoUri != null -> {
+                                Image(
+                                    painter = rememberAsyncImagePainter(provider.logoUri),
+                                    contentDescription = provider.name,
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(RoundedCornerShape(6.dp))
+                                )
+                            }
                         }
-
+                        Spacer(modifier = Modifier.width(16.dp))
                         Text(
                             text = provider.name.replaceFirstChar { it.uppercase() },
                             style = MaterialTheme.typography.bodyLarge

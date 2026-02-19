@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
         Destination::class,
         Expense::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class MyTripsManagerDb : RoomDatabase() {
