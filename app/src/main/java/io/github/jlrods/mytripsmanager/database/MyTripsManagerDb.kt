@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
         Destination::class,
         Expense::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class MyTripsManagerDb : RoomDatabase() {
@@ -35,34 +35,65 @@ abstract class MyTripsManagerDb : RoomDatabase() {
         @Volatile
         private var Instance: MyTripsManagerDb? = null
 
-        fun getDatabase(context: Context): MyTripsManagerDb {
-            return Instance ?: synchronized(this) {
-                Room.databaseBuilder(context, MyTripsManagerDb::class.java, "my_trips_manager_database")
-                    .fallbackToDestructiveMigration()// TODO: Remove this in production
-                    .addCallback(object : Callback() {
-                        override fun onCreate(db: SupportSQLiteDatabase) {
-                            super.onCreate(db)
-                            // Use a coroutine to insert the initial data on a background thread
-                            CoroutineScope(Dispatchers.IO).launch {
-                                Instance?.let { database ->
-                                    database.countryDao().insertAll(InitialData.getCountries())
-                                    database.expenseTypeDao().insertAll(InitialData.getExpenseTypes())
-                                    database.providerDao().insertAll(InitialData.getProviders())
+//        fun getDatabase(context: Context): MyTripsManagerDb {
+//            return Instance ?: synchronized(this) {
+//                Room.databaseBuilder(context, MyTripsManagerDb::class.java, "my_trips_manager_database")
+//                    .fallbackToDestructiveMigration()// TODO: Remove this in production
+//                    .addCallback(object : Callback() {
+//                        override fun onCreate(db: SupportSQLiteDatabase) {
+//                            super.onCreate(db)
+//                            // Use a coroutine to insert the initial data on a background thread
+//                            CoroutineScope(Dispatchers.IO).launch {
+//                                Instance?.let { database ->
+//                                    database.countryDao().insertAll(InitialData.getCountries())
+//                                    database.expenseTypeDao().insertAll(InitialData.getExpenseTypes())
+//                                    database.providerDao().insertAll(InitialData.getProviders())
+//
+//                                    // Now fetch countries with generated IDs
+//                                    val countries = database.countryDao().getAllCountriesOnce()
+//                                    val countryIdMap = countries.associate { it.name to it.id }
+//                                    // Insert cities using real IDs
+//                                    database.cityDao().insertAll(
+//                                        InitialData.getEuropeanCities(countryIdMap)
+//                                    )
+//                                }
+//                            }
+//                        }
+//                    })
+//                    .build()
+//                    .also { Instance = it }
+//            }
+//        }
+fun getDatabase(context: Context): MyTripsManagerDb {
+    return Instance ?: synchronized(this) {
 
-                                    // Now fetch countries with generated IDs
-                                    val countries = database.countryDao().getAllCountriesOnce()
-                                    val countryIdMap = countries.associate { it.name to it.id }
-                                    // Insert cities using real IDs
-                                    database.cityDao().insertAll(
-                                        InitialData.getEuropeanCities(countryIdMap)
-                                    )
-                                }
-                            }
-                        }
-                    })
-                    .build()
-                    .also { Instance = it }
-            }
+        val builder = Room.databaseBuilder(
+            context.applicationContext,
+            MyTripsManagerDb::class.java,
+            "my_trips_manager_database"
+        )
+            .fallbackToDestructiveMigration()
+
+        val instance = builder.build()
+
+        instance.openHelper.writableDatabase // Forces creation
+
+        CoroutineScope(Dispatchers.IO).launch {
+            instance.countryDao().insertAll(InitialData.getCountries())
+            instance.expenseTypeDao().insertAll(InitialData.getExpenseTypes())
+            instance.providerDao().insertAll(InitialData.getProviders())
+
+            val countries = instance.countryDao().getAllCountriesOnce()
+            val countryIdMap = countries.associate { it.name to it.id }
+
+            instance.cityDao().insertAll(
+                InitialData.getEuropeanCities(countryIdMap)
+            )
         }
+
+        Instance = instance
+        instance
+    }
+}
     }
 }

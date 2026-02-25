@@ -1,5 +1,6 @@
 package io.github.jlrods.mytripsmanager.ui.screens.providers
 
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -35,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
@@ -54,7 +56,7 @@ fun ProviderFormScreen(
     var selectedLogoRes by rememberSaveable { mutableStateOf<Int?>(null) }
     var selectedLogoUri by rememberSaveable { mutableStateOf<String?>(null) }
     var showLogoPicker by remember { mutableStateOf(false) }
-
+    val context = LocalContext.current
     val builtInLogos = listOf(
         R.drawable.logo_aa,
         R.drawable.logo_aerlingus,
@@ -154,11 +156,20 @@ fun ProviderFormScreen(
             onClick = {
                 if (providerName.isNotBlank()) {
                     viewModel.insertProvider(
-                        name = providerName.trim().lowercase(),
+                        name = providerName,
                         logoRes = selectedLogoRes,
-                        logoUri = selectedLogoUri
+                        logoUri = selectedLogoUri,
+                        onDuplicate = {
+                            Toast.makeText(
+                                context,
+                                "Provider already exists",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        onSuccess = {
+                            onSave()
+                        }
                     )
-                    onSave()
                 }
             },
             modifier = Modifier.fillMaxWidth()

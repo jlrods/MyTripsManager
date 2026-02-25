@@ -19,6 +19,9 @@ interface ProviderDao {
     @Query("SELECT * FROM providers WHERE name = :name")
     fun getProviderByName(name: String): Flow<Provider>
 
+    @Query("SELECT COUNT(*) FROM providers WHERE name = :name")
+    suspend fun countByName(name: String): Int
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(provider: Provider)
 

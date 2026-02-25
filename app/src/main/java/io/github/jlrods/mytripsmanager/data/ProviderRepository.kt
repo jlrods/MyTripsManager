@@ -11,6 +11,11 @@ class ProviderRepository(
     val providers: Flow<List<Provider>> =
         providerDao.getAllProviders()
 
+    suspend fun existsByName(name: String): Boolean {
+        return providerDao.countByName(name) > 0
+    }
+
+
     suspend fun insert(provider: Provider) =
         providerDao.insert(provider)
 

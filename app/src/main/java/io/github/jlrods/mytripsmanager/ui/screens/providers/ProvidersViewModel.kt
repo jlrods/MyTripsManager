@@ -18,15 +18,29 @@ class ProvidersViewModel(
         }
     }
 
-    fun insertProvider(name: String, logoRes: Int?, logoUri: String?) {
+    fun insertProvider(
+        name: String,
+        logoRes: Int?,
+        logoUri: String?,
+        onDuplicate: () -> Unit,
+        onSuccess: () -> Unit
+    ){
         viewModelScope.launch {
+            val cleanName = name.trim().lowercase()
+
+            if (repository.existsByName(cleanName)) {
+                onDuplicate()
+                return@launch
+            }
             repository.insert(
                 Provider(
-                    name = name,
+                    name = cleanName,
                     logoRes = logoRes,
                     logoUri = logoUri
                 )
             )
+
+            onSuccess()
         }
     }
 }
