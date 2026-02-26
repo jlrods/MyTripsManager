@@ -19,6 +19,9 @@ interface ExpenseTypeDao {
     @Query("SELECT * FROM expense_types WHERE name = :name")
     fun getExpenseTypeByName(name: String): Flow<ExpenseType>
 
+    @Query("SELECT COUNT(*) FROM expense_types")
+    suspend fun count(): Int
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(expenseType: ExpenseType)
 

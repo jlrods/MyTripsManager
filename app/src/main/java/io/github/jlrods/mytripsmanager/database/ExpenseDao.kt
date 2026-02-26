@@ -34,6 +34,9 @@ interface ExpenseDao {
     @Query("SELECT * FROM expenses WHERE tripId = :tripId AND cost > :cost ORDER BY cost DESC")
     fun getExpensesByTripAndCostGreaterThan(tripId: Int, cost: Double): Flow<List<Expense>>
 
+    @Query("SELECT COUNT(*) FROM expenses")
+    suspend fun count(): Int
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(expense: Expense)
 

@@ -1,4 +1,5 @@
 package io.github.jlrods.mytripsmanager.database
+import kotlinx.coroutines.runBlocking
 
 import android.content.Context
 import androidx.room.Database
@@ -19,7 +20,7 @@ import kotlinx.coroutines.launch
         Destination::class,
         Expense::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 abstract class MyTripsManagerDb : RoomDatabase() {
@@ -64,32 +65,102 @@ abstract class MyTripsManagerDb : RoomDatabase() {
 //                    .also { Instance = it }
 //            }
 //        }
+//        Working getDatabase function after fixing timing issue with "instance" object
+//fun getDatabase(context: Context): MyTripsManagerDb {
+//    return Instance ?: synchronized(this) {
+//
+//        val builder = Room.databaseBuilder(
+//            context.applicationContext,
+//            MyTripsManagerDb::class.java,
+//            "my_trips_manager_database"
+//        )
+//            .fallbackToDestructiveMigration()
+//
+//        val instance = builder.build()
+//
+//        instance.openHelper.writableDatabase // Forces creation
+//
+//        CoroutineScope(Dispatchers.IO).launch {
+//            instance.countryDao().insertAll(InitialData.getCountries())
+//            instance.expenseTypeDao().insertAll(InitialData.getExpenseTypes())
+//            instance.providerDao().insertAll(InitialData.getProviders())
+//
+//            val countries = instance.countryDao().getAllCountriesOnce()
+//            val countryIdMap = countries.associate { it.name to it.id }
+//
+//            instance.cityDao().insertAll(
+//                InitialData.getEuropeanCities(countryIdMap)
+//            )
+//        }
+//
+//        Instance = instance
+//        instance
+//    }
+//}
+//fun getDatabase(context: Context): MyTripsManagerDb {
+//    return Instance ?: synchronized(this) {
+//
+//        val instance = Room.databaseBuilder(
+//            context.applicationContext,
+//            MyTripsManagerDb::class.java,
+//            "my_trips_manager_database"
+//        )
+//            .fallbackToDestructiveMigration()
+//            .build()
+//
+//        CoroutineScope(Dispatchers.IO).launch {
+//
+//            if (instance.countryDao().count() == 0) {
+//
+//                instance.countryDao().insertAll(InitialData.getCountries())
+//                instance.expenseTypeDao().insertAll(InitialData.getExpenseTypes())
+//                instance.providerDao().insertAll(InitialData.getProviders())
+//
+//                val countries = instance.countryDao().getAllCountriesOnce()
+//                val countryIdMap = countries.associate { it.name to it.id }
+//
+//                instance.cityDao().insertAll(
+//                    InitialData.getEuropeanCities(countryIdMap)
+//                )
+//            }
+//        }
+//
+//        Instance = instance
+//        instance
+//    }
+//}
 fun getDatabase(context: Context): MyTripsManagerDb {
     return Instance ?: synchronized(this) {
 
-        val builder = Room.databaseBuilder(
+        val instance = Room.databaseBuilder(
             context.applicationContext,
             MyTripsManagerDb::class.java,
             "my_trips_manager_database"
         )
             .fallbackToDestructiveMigration()
+            .addCallback(object : Callback() {
 
-        val instance = builder.build()
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    super.onCreate(db)
 
-        instance.openHelper.writableDatabase // Forces creation
+                    CoroutineScope(Dispatchers.IO).launch {
 
-        CoroutineScope(Dispatchers.IO).launch {
-            instance.countryDao().insertAll(InitialData.getCountries())
-            instance.expenseTypeDao().insertAll(InitialData.getExpenseTypes())
-            instance.providerDao().insertAll(InitialData.getProviders())
+                        val database = Instance ?: return@launch
 
-            val countries = instance.countryDao().getAllCountriesOnce()
-            val countryIdMap = countries.associate { it.name to it.id }
+                        database.countryDao().insertAll(InitialData.getCountries())
+                        database.expenseTypeDao().insertAll(InitialData.getExpenseTypes())
+                        database.providerDao().insertAll(InitialData.getProviders())
 
-            instance.cityDao().insertAll(
-                InitialData.getEuropeanCities(countryIdMap)
-            )
-        }
+                        val countries = database.countryDao().getAllCountriesOnce()
+                        val countryIdMap = countries.associate { it.name to it.id }
+
+                        database.cityDao().insertAll(
+                            InitialData.getEuropeanCities(countryIdMap)
+                        )
+                    }
+                }
+            })
+            .build()
 
         Instance = instance
         instance

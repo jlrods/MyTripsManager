@@ -30,6 +30,9 @@ interface CityDao {
     @Query("SELECT * FROM countries ORDER BY name ASC")
     fun getAllCountries(): Flow<List<Country>>
 
+    @Query("SELECT COUNT(*) FROM cities")
+    suspend fun count(): Int
+
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(cities: List<City>)
