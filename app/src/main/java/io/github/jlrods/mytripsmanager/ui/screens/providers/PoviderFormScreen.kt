@@ -19,9 +19,14 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -66,6 +71,7 @@ fun ProviderFormScreen(
     }
     var showLogoPicker by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    var showDeleteDialog by remember { mutableStateOf(false) }
     val builtInLogos = listOf(
         R.drawable.logo_aa,
         R.drawable.logo_aerlingus,
@@ -190,10 +196,19 @@ fun ProviderFormScreen(
                                 id = it.id,
                                 name = providerName,
                                 logRes = selectedLogoRes,
-                                logoUri = selectedLogoUri
+                                logoUri = selectedLogoUri,
+                                onDuplicate = {
+                                    Toast.makeText(
+                                        context,
+                                        "Provider already exists",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                },
+                                onSuccess = {
+                                    onSave()
+                                }
                             )
                         }
-                        onSave()
                     }
 
                 }
@@ -201,6 +216,49 @@ fun ProviderFormScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(if (isEditMode) "Update Provider" else "Save Provider")
+        }
+        if (isEditMode) {
+            IconButton(
+                modifier = Modifier.align(Alignment.End),
+                onClick = { showDeleteDialog = true }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete Provider"
+                )
+            }
+        }
+        if (showDeleteDialog) {
+            AlertDialog(
+                onDismissRequest = { showDeleteDialog = false },
+                title = { Text("Delete Provider") },
+                text = { Text("Are you sure you want to delete this provider?") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            providerToEdit?.let {
+                                viewModel.deleteProvider(Provider(it.id,it.name,it.logoRes,it.logoUri,))
+                            }
+                            showDeleteDialog = false
+                            Toast.makeText(
+                                context,
+                                "Provider deleted",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            onSave()
+                        }
+                    ) {
+                        Text("Delete")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { showDeleteDialog = false }
+                    ) {
+                        Text("Cancel")
+                    }
+                }
+            )
         }
     }
 

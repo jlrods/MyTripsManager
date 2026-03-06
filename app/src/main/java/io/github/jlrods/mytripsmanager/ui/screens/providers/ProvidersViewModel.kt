@@ -13,12 +13,6 @@ class ProvidersViewModel(
 
     val providers = repository.providers
 
-    fun deleteProvider(provider: Provider) {
-        viewModelScope.launch {
-            repository.delete(provider)
-        }
-    }
-
     fun insertProvider(
         name: String,
         logoRes: Int?,
@@ -44,8 +38,20 @@ class ProvidersViewModel(
             onSuccess()
         }
     }
-    fun updateProvider(id: Int, name: String, logRes: Int?, logoUri: String?) {
+    fun updateProvider(
+        id: Int,
+        name: String,
+        logRes: Int?,
+        logoUri: String?,
+        onDuplicate: () -> Unit,
+        onSuccess: () -> Unit
+    ) {
         viewModelScope.launch {
+            val cleanName = name.trim().lowercase()
+            if (repository.existsByName(cleanName)) {
+                onDuplicate()
+                return@launch
+            }
             repository.update(
                 Provider(
                     id = id,
@@ -54,6 +60,14 @@ class ProvidersViewModel(
                     logoUri = logoUri
                 )
             )
+            onSuccess()
         }
     }
+
+    fun deleteProvider(provider: Provider) {
+        viewModelScope.launch {
+            repository.delete(provider)
+        }
+    }
+
 }
