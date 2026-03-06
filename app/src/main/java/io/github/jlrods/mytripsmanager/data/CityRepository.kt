@@ -32,11 +32,15 @@ class CityRepository(
     }
 
     suspend fun update(city: City) {
-        cityDao.update(city)
+        return cityDao.update(city)
     }
 
     suspend fun delete(city: City) {
         cityDao.delete(city)
+    }
+
+    suspend fun existsByNameAndCountry(countryID: Int, name: String): Boolean {
+        return cityDao.countByNameAndCountry(countryId = countryID, name = name) > 0
     }
 
 }

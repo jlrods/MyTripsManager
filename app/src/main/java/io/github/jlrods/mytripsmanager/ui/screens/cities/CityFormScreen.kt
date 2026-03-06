@@ -143,9 +143,16 @@ fun CityFormScreen(
                                     id = it.city.id,
                                     name = cityName,
                                     countryId = selectedCountry.id,
+                                    onDuplicate = {
+                                        Toast.makeText(
+                                            context,
+                                            "City already exists for this country",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    },
+                                    onSuccess = { onSave() }
                                 )
                             }
-                            onSave()
                         }
                     }
                 },
