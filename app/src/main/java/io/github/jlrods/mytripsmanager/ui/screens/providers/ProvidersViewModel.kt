@@ -3,6 +3,7 @@ package io.github.jlrods.mytripsmanager.ui.screens.providers
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.jlrods.mytripsmanager.data.ProviderRepository
+import io.github.jlrods.mytripsmanager.database.City
 import io.github.jlrods.mytripsmanager.database.Provider
 import kotlinx.coroutines.launch
 
@@ -41,6 +42,18 @@ class ProvidersViewModel(
             )
 
             onSuccess()
+        }
+    }
+    fun updateProvider(id: Int, name: String, logRes: Int?, logoUri: String?) {
+        viewModelScope.launch {
+            repository.update(
+                Provider(
+                    id = id,
+                    name = name.trim().lowercase(),
+                    logoRes = logRes,
+                    logoUri = logoUri
+                )
+            )
         }
     }
 }

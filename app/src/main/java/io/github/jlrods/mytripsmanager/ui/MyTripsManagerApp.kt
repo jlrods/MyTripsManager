@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -23,6 +24,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.jlrods.mytripsmanager.database.MyTripsManagerDb
 import io.github.jlrods.mytripsmanager.data.CityRepository
 import io.github.jlrods.mytripsmanager.data.ProviderRepository
+import io.github.jlrods.mytripsmanager.database.Provider
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModel
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModelFactory
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesScreen
@@ -50,6 +52,7 @@ fun MyTripsManagerApp() {
     val providersFactory = ProvidersViewModelFactory(providerRepository)
     val providersViewModel: ProvidersViewModel =
         viewModel(factory = providersFactory)
+    var selectedProvider by remember { mutableStateOf<Provider?>(null) }
 
 
     NavigationSuiteScaffold(
@@ -128,7 +131,12 @@ fun MyTripsManagerApp() {
                         viewModel = providersViewModel,
                         modifier = Modifier.padding(innerPadding),
                         onAddProviderClick = {
+                            selectedProvider = null
                             currentDestination = AppDestinations.ADD_PROVIDER
+                        },
+                        onProviderClick = { provider ->
+                            selectedProvider = provider
+                            currentDestination = AppDestinations.EDIT_PROVIDER
                         }
                     )
                 }
@@ -142,6 +150,18 @@ fun MyTripsManagerApp() {
                         }
                     )
                 }
+
+                AppDestinations.EDIT_PROVIDER -> {
+                    ProviderFormScreen(
+                        viewModel = providersViewModel,
+                        modifier = Modifier.padding(innerPadding),
+                        providerToEdit = selectedProvider,
+                        onSave = {
+                            currentDestination = AppDestinations.PROVIDERS
+                        }
+                    )
+                }
+
             }
         }
     }

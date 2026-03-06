@@ -1,6 +1,7 @@
 package io.github.jlrods.mytripsmanager.ui.screens.providers
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,13 +30,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import io.github.jlrods.mytripsmanager.database.Provider
 
 
 @Composable
 fun ProvidersScreen(
     viewModel: ProvidersViewModel,
     modifier: Modifier = Modifier,
-    onAddProviderClick: () -> Unit
+    onAddProviderClick: () -> Unit,
+    onProviderClick: (Provider) -> Unit
 ) {
 
     val providers by viewModel.providers.collectAsState(initial = emptyList())
@@ -59,10 +62,12 @@ fun ProvidersScreen(
                 .padding(innerPadding)
         ) {
             items(providers) { provider ->
+
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                        .padding(horizontal = 16.dp, vertical = 6.dp)
+                        .clickable { onProviderClick(provider) },
                     elevation = CardDefaults.cardElevation(4.dp)
                 ) {
 
@@ -72,16 +77,6 @@ fun ProvidersScreen(
                             .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-
-//                        provider.logoRes?.let { logo ->
-//                            Image(
-//                                painter = painterResource(id = logo),
-//                                contentDescription = provider.name,
-//                                modifier = Modifier
-//                                    .size(40.dp)
-//                                    .clip(RoundedCornerShape(6.dp))
-//                            )
-//                        }
                         when {
                             provider.logoRes != null -> {
                                 Image(

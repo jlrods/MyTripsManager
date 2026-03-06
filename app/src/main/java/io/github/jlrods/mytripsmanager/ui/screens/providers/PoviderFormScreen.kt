@@ -41,20 +41,29 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import io.github.jlrods.mytripsmanager.R
+import io.github.jlrods.mytripsmanager.database.Provider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProviderFormScreen(
     viewModel: ProvidersViewModel,
     modifier: Modifier = Modifier,
+    providerToEdit: Provider? = null,
     onSave: () -> Unit
 ) {
+    val isEditMode = providerToEdit != null
 
-    var providerName by rememberSaveable {
-        mutableStateOf("")
+    var providerName by rememberSaveable(providerToEdit) {
+        mutableStateOf(providerToEdit?.name?.trim()?.replaceFirstChar { it.uppercase() } ?: "")
     }
-    var selectedLogoRes by rememberSaveable { mutableStateOf<Int?>(null) }
-    var selectedLogoUri by rememberSaveable { mutableStateOf<String?>(null) }
+
+    var selectedLogoRes by rememberSaveable(providerToEdit) {
+        mutableStateOf(providerToEdit?.logoRes)
+    }
+
+    var selectedLogoUri by rememberSaveable(providerToEdit) {
+        mutableStateOf(providerToEdit?.logoUri)
+    }
     var showLogoPicker by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val builtInLogos = listOf(
@@ -155,26 +164,43 @@ fun ProviderFormScreen(
         Button(
             onClick = {
                 if (providerName.isNotBlank()) {
-                    viewModel.insertProvider(
-                        name = providerName,
-                        logoRes = selectedLogoRes,
-                        logoUri = selectedLogoUri,
-                        onDuplicate = {
-                            Toast.makeText(
-                                context,
-                                "Provider already exists",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        },
-                        onSuccess = {
-                            onSave()
+                    if (!isEditMode) {
+                        //ADD MODE
+                        viewModel.insertProvider(
+
+                            name = providerName,
+                            logoRes = selectedLogoRes,
+                            logoUri = selectedLogoUri,
+                            onDuplicate = {
+                                Toast.makeText(
+                                    context,
+                                    "Provider already exists",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            },
+                            onSuccess = {
+                                onSave()
+                            }
+                        )
+
+                    }else {
+                        // EDIT MODE
+                        providerToEdit?.let {
+                            viewModel.updateProvider(
+                                id = it.id,
+                                name = providerName,
+                                logRes = selectedLogoRes,
+                                logoUri = selectedLogoUri
+                            )
                         }
-                    )
+                        onSave()
+                    }
+
                 }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Save Provider")
+            Text(if (isEditMode) "Update Provider" else "Save Provider")
         }
     }
 
