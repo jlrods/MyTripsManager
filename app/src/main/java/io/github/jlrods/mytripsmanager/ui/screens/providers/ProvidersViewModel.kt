@@ -6,6 +6,7 @@ import io.github.jlrods.mytripsmanager.data.ProviderRepository
 import io.github.jlrods.mytripsmanager.database.City
 import io.github.jlrods.mytripsmanager.database.Provider
 import kotlinx.coroutines.launch
+import java.io.File
 
 class ProvidersViewModel(
     private val repository: ProviderRepository
@@ -67,6 +68,12 @@ class ProvidersViewModel(
     fun deleteProvider(provider: Provider) {
         viewModelScope.launch {
             repository.delete(provider)
+        }
+        provider.logoUri?.let { path ->
+            val file = File(path)
+            if (file.exists()) {
+                file.delete()
+            }
         }
     }
 

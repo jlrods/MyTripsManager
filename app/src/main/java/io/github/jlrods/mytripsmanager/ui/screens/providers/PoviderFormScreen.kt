@@ -1,5 +1,6 @@
 package io.github.jlrods.mytripsmanager.ui.screens.providers
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -9,6 +10,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -47,6 +49,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import io.github.jlrods.mytripsmanager.R
 import io.github.jlrods.mytripsmanager.database.Provider
+import io.github.jlrods.mytripsmanager.utils.ImageStorage
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -111,6 +115,7 @@ fun ProviderFormScreen(
         R.drawable.logo_turkishairlines,
         R.drawable.logo_vhi
     )
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -149,7 +154,10 @@ fun ProviderFormScreen(
 
                 selectedLogoUri != null -> {
                     Image(
-                        painter = rememberAsyncImagePainter(selectedLogoUri),
+//                        painter = rememberAsyncImagePainter(selectedLogoUri),
+                        painter =  rememberAsyncImagePainter(
+                            model = File(selectedLogoUri.toString())
+                        ),
                         contentDescription = "Selected Logo",
                         modifier = Modifier.fillMaxSize()
                     )
@@ -161,41 +169,81 @@ fun ProviderFormScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+//        Spacer(modifier = Modifier.height(8.dp))
 
         TextButton(onClick = { showLogoPicker = true }) {
             Text("Select Logo")
         }
+//        val launcher = rememberLauncherForActivityResult(
+//            contract = ActivityResultContracts.GetContent()
+//        ) { uri ->
+//            uri?.let {
+//                selectedLogoUri = it.toString()
+//                selectedLogoRes = null
+//            }
+//            showLogoPicker = false
+//        }
+        val context = LocalContext.current
 
-        Button(
-            onClick = {
-                if (providerName.isNotBlank()) {
-                    if (!isEditMode) {
-                        //ADD MODE
-                        viewModel.insertProvider(
+//        val logoPickerLauncher =
+//            rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+//                uri?.let {
+//
+//                    context.contentResolver.takePersistableUriPermission(
+//                        it,
+//                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+//                    )
+//
+//                    selectedLogoUri = it.toString()
+//                    selectedLogoRes = null
+//                }
+//            }
+        val logoPickerLauncher =
+            rememberLauncherForActivityResult(
+                ActivityResultContracts.GetContent()
+            ) { uri ->
 
-                            name = providerName,
-                            logoRes = selectedLogoRes,
-                            logoUri = selectedLogoUri,
-                            onDuplicate = {
-                                Toast.makeText(
-                                    context,
-                                    "Provider already exists",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            },
-                            onSuccess = {
-                                onSave()
-                            }
-                        )
+                uri?.let {
 
-                    }else {
-                        // EDIT MODE
-                        providerToEdit?.let {
-                            viewModel.updateProvider(
-                                id = it.id,
+                    val localPath = ImageStorage.saveCompressedImage(
+                        context = context,
+                        uri = it
+                    )
+
+                    selectedLogoUri = localPath
+                    selectedLogoRes = null
+                }
+            }
+        //            rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+//                uri?.let {
+//
+//                    val localPath = ImageStorage.copyImageToInternalStorage(
+//                        context = context,
+//                        uri = it
+//                    )
+//
+//                    selectedLogoUri = localPath
+//                    selectedLogoRes = null
+//                }
+//            }
+
+        TextButton(
+            onClick = { logoPickerLauncher.launch("image/*") },
+            modifier = Modifier
+
+            ) {
+                Text("Choose From Gallery")
+        }
+
+            Button(
+                onClick = {
+                    if (providerName.isNotBlank()) {
+                        if (!isEditMode) {
+                            //ADD MODE
+                            viewModel.insertProvider(
+
                                 name = providerName,
-                                logRes = selectedLogoRes,
+                                logoRes = selectedLogoRes,
                                 logoUri = selectedLogoUri,
                                 onDuplicate = {
                                     Toast.makeText(
@@ -208,15 +256,37 @@ fun ProviderFormScreen(
                                     onSave()
                                 }
                             )
-                        }
-                    }
 
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(if (isEditMode) "Update Provider" else "Save Provider")
+                        }else {
+                            // EDIT MODE
+                            providerToEdit?.let {
+                                viewModel.updateProvider(
+                                    id = it.id,
+                                    name = providerName,
+                                    logRes = selectedLogoRes,
+                                    logoUri = selectedLogoUri,
+                                    onDuplicate = {
+                                        Toast.makeText(
+                                            context,
+                                            "Provider already exists",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    },
+                                    onSuccess = {
+                                        onSave()
+                                    }
+                                )
+                            }
+                        }
+
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(if (isEditMode) "Update Provider" else "Save Provider")
         }
+
+
         if (isEditMode) {
             IconButton(
                 modifier = Modifier.align(Alignment.End),
@@ -298,24 +368,7 @@ fun ProviderFormScreen(
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
 
-            val launcher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.GetContent()
-            ) { uri ->
-                uri?.let {
-                    selectedLogoUri = it.toString()
-                    selectedLogoRes = null
-                }
-                showLogoPicker = false
-            }
 
-            TextButton(
-                onClick = { launcher.launch("image/*") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                Text("Choose From Gallery")
-            }
         }
     }
 }
