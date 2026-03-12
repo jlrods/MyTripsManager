@@ -51,6 +51,7 @@ import io.github.jlrods.mytripsmanager.R
 import io.github.jlrods.mytripsmanager.database.Provider
 import io.github.jlrods.mytripsmanager.utils.ImageStorage
 import java.io.File
+import androidx.compose.foundation.layout.ColumnScope
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,6 +76,22 @@ fun ProviderFormScreen(
     }
     var showLogoPicker by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val logoPickerLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.GetContent()
+        ) { uri ->
+
+            uri?.let {
+
+                val localPath = ImageStorage.saveCompressedImage(
+                    context = context,
+                    uri = it
+                )
+
+                selectedLogoUri = localPath
+                selectedLogoRes = null
+            }
+        }
     var showDeleteDialog by remember { mutableStateOf(false) }
     val builtInLogos = listOf(
         R.drawable.logo_aa,
@@ -154,7 +171,6 @@ fun ProviderFormScreen(
 
                 selectedLogoUri != null -> {
                     Image(
-//                        painter = rememberAsyncImagePainter(selectedLogoUri),
                         painter =  rememberAsyncImagePainter(
                             model = File(selectedLogoUri.toString())
                         ),
@@ -169,81 +185,40 @@ fun ProviderFormScreen(
             }
         }
 
-//        Spacer(modifier = Modifier.height(8.dp))
-
-        TextButton(onClick = { showLogoPicker = true }) {
+        Button(
+            onClick = { showLogoPicker = true }
+        ) {
             Text("Select Logo")
         }
-//        val launcher = rememberLauncherForActivityResult(
-//            contract = ActivityResultContracts.GetContent()
-//        ) { uri ->
-//            uri?.let {
-//                selectedLogoUri = it.toString()
-//                selectedLogoRes = null
-//            }
-//            showLogoPicker = false
-//        }
-        val context = LocalContext.current
+        Button(
+            onClick = {
+                if (providerName.isNotBlank()) {
+                    if (!isEditMode) {
+                        //ADD MODE
+                        viewModel.insertProvider(
 
-//        val logoPickerLauncher =
-//            rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-//                uri?.let {
-//
-//                    context.contentResolver.takePersistableUriPermission(
-//                        it,
-//                        Intent.FLAG_GRANT_READ_URI_PERMISSION
-//                    )
-//
-//                    selectedLogoUri = it.toString()
-//                    selectedLogoRes = null
-//                }
-//            }
-        val logoPickerLauncher =
-            rememberLauncherForActivityResult(
-                ActivityResultContracts.GetContent()
-            ) { uri ->
+                            name = providerName,
+                            logoRes = selectedLogoRes,
+                            logoUri = selectedLogoUri,
+                            onDuplicate = {
+                                Toast.makeText(
+                                    context,
+                                    "Provider already exists",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            },
+                            onSuccess = {
+                                onSave()
+                            }
+                        )
 
-                uri?.let {
-
-                    val localPath = ImageStorage.saveCompressedImage(
-                        context = context,
-                        uri = it
-                    )
-
-                    selectedLogoUri = localPath
-                    selectedLogoRes = null
-                }
-            }
-        //            rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-//                uri?.let {
-//
-//                    val localPath = ImageStorage.copyImageToInternalStorage(
-//                        context = context,
-//                        uri = it
-//                    )
-//
-//                    selectedLogoUri = localPath
-//                    selectedLogoRes = null
-//                }
-//            }
-
-        TextButton(
-            onClick = { logoPickerLauncher.launch("image/*") },
-            modifier = Modifier
-
-            ) {
-                Text("Choose From Gallery")
-        }
-
-            Button(
-                onClick = {
-                    if (providerName.isNotBlank()) {
-                        if (!isEditMode) {
-                            //ADD MODE
-                            viewModel.insertProvider(
-
+                    }else {
+                        // EDIT MODE
+                        providerToEdit?.let {
+                            viewModel.updateProvider(
+                                id = it.id,
                                 name = providerName,
-                                logoRes = selectedLogoRes,
+                                logRes = selectedLogoRes,
                                 logoUri = selectedLogoUri,
                                 onDuplicate = {
                                     Toast.makeText(
@@ -256,46 +231,34 @@ fun ProviderFormScreen(
                                     onSave()
                                 }
                             )
-
-                        }else {
-                            // EDIT MODE
-                            providerToEdit?.let {
-                                viewModel.updateProvider(
-                                    id = it.id,
-                                    name = providerName,
-                                    logRes = selectedLogoRes,
-                                    logoUri = selectedLogoUri,
-                                    onDuplicate = {
-                                        Toast.makeText(
-                                            context,
-                                            "Provider already exists",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    },
-                                    onSuccess = {
-                                        onSave()
-                                    }
-                                )
-                            }
                         }
-
                     }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(if (isEditMode) "Update Provider" else "Save Provider")
+
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(if (isEditMode) "Update Provider" else "Save Provider")
+        }
+
         }
 
 
+
+
         if (isEditMode) {
-            IconButton(
-                modifier = Modifier.align(Alignment.End),
-                onClick = { showDeleteDialog = true }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
             ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete Provider"
-                )
+                IconButton(
+                    onClick = { showDeleteDialog = true }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete Provider"
+                    )
+                }
             }
         }
         if (showDeleteDialog) {
@@ -330,45 +293,86 @@ fun ProviderFormScreen(
                 }
             )
         }
-    }
-
     if (showLogoPicker) {
 
         ModalBottomSheet(
             onDismissRequest = { showLogoPicker = false }
         ) {
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                modifier = Modifier.padding(16.dp)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
             ) {
 
-                items(builtInLogos) { logo ->
+                Text(
+                    text = "Choose Logo",
+                    style = MaterialTheme.typography.titleMedium
+                )
 
-                    Box(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .size(80.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable {
-                                selectedLogoRes = logo
-                                selectedLogoUri = null
-                                showLogoPicker = false
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Image(
-                            painter = painterResource(logo),
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize()
-                        )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "App Logos",
+                    style = MaterialTheme.typography.labelLarge
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    modifier = Modifier.height(300.dp)
+                ) {
+
+                    items(builtInLogos) { logo ->
+
+                        Box(
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .size(80.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .clickable {
+                                    selectedLogoRes = logo
+                                    selectedLogoUri = null
+                                    showLogoPicker = false
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                painter = painterResource(logo),
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
                     }
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                HorizontalDivider()
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                TextButton(
+                    onClick = {
+                        showLogoPicker = false
+                        logoPickerLauncher.launch("image/*")
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Choose From Gallery")
+                }
+
+                TextButton(
+                    onClick = { showLogoPicker = false },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Cancel")
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
             }
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
-
-
         }
     }
-}
+    }
+
