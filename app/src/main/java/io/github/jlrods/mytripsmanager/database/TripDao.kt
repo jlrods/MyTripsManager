@@ -55,6 +55,9 @@ interface TripDao {
     @Query("SELECT * FROM trips WHERE cashSpent <= cashBudget ORDER BY name ASC")
     fun getTripsWithUnderOrEqualBudget(): Flow<List<Trip>>
 
+    @Query("SELECT COUNT(*) FROM trips")
+    suspend fun count(): Int
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(trip: Trip)
 

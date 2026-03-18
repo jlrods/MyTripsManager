@@ -20,6 +20,12 @@ interface CityDao {
     @Query("SELECT * FROM cities WHERE countryId = :countryId ORDER BY name ASC")
     fun getCitiesByCountry(countryId: Int): Flow<List<City>>
 
+    @Query($$"SELECT COUNT(*) FROM cities WHERE countryId = :countryId AND name = :name")
+    suspend fun countByNameAndCountry(countryId: Int, name: String): Int
+
+    @Query("SELECT COUNT(*) FROM cities WHERE name = :name ORDER BY name ASC")
+    suspend fun countByName(name: String): Int
+
     @Query("SELECT * FROM cities WHERE name LIKE :name ORDER BY name ASC")
     fun getCitiesByName(name: String): Flow<List<City>>
 
@@ -29,6 +35,9 @@ interface CityDao {
 
     @Query("SELECT * FROM countries ORDER BY name ASC")
     fun getAllCountries(): Flow<List<Country>>
+
+    @Query("SELECT COUNT(*) FROM cities")
+    suspend fun count(): Int
 
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.jlrods.mytripsmanager.data.CityRepository
 import io.github.jlrods.mytripsmanager.database.City
 import io.github.jlrods.mytripsmanager.database.CityWithCountry
+import io.github.jlrods.mytripsmanager.database.Provider
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -56,8 +57,19 @@ class CitiesViewModel(
         }
     }
 
-    fun updateCity(id: Int, name: String, countryId: Int) {
+    fun updateCity(
+        id: Int,
+        name: String,
+        countryId: Int,
+        onDuplicate: () -> Unit,
+        onSuccess: () -> Unit
+    ) {
         viewModelScope.launch {
+            val cleanName = name.trim().lowercase()
+            if (repository.existsByNameAndCountry(countryId,cleanName)) {
+                onDuplicate()
+                return@launch
+            }
             repository.update(
                 City(
                     id = id,
@@ -65,6 +77,7 @@ class CitiesViewModel(
                     countryId = countryId
                 )
             )
+            onSuccess()
         }
     }
 

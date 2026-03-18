@@ -33,6 +33,9 @@ interface DestinationDao {
     @Query("SELECT * FROM destinations WHERE start BETWEEN :startDate AND :endDate ORDER BY start ASC")
     fun getDestinationsInDateRange(startDate: Long, endDate: Long): Flow<List<Destination>>
 
+    @Query("SELECT COUNT(*) FROM destinations")
+    suspend fun count(): Int
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(destination: Destination)
 

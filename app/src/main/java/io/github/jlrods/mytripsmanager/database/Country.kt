@@ -1,9 +1,15 @@
 package io.github.jlrods.mytripsmanager.database
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "countries")
+@Entity(
+    tableName = "countries",
+    indices = [
+        Index(value = ["name"], unique = true)
+    ]
+    )
 data class Country(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
