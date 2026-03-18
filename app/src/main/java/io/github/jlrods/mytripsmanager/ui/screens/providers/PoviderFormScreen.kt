@@ -156,6 +156,7 @@ fun ProviderFormScreen(
             modifier = Modifier
                 .size(80.dp)
                 .clip(RoundedCornerShape(12.dp))
+                .clickable { showLogoPicker = true }
                 .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp)),
             contentAlignment = Alignment.Center
         ) {
@@ -184,12 +185,7 @@ fun ProviderFormScreen(
                 }
             }
         }
-
-        Button(
-            onClick = { showLogoPicker = true }
-        ) {
-            Text("Select Logo")
-        }
+        
         Button(
             onClick = {
                 if (providerName.isNotBlank()) {
