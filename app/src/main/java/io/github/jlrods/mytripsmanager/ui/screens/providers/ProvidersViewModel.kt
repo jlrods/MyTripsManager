@@ -3,7 +3,6 @@ package io.github.jlrods.mytripsmanager.ui.screens.providers
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.jlrods.mytripsmanager.data.ProviderRepository
-import io.github.jlrods.mytripsmanager.database.City
 import io.github.jlrods.mytripsmanager.database.Provider
 import kotlinx.coroutines.launch
 import java.io.File
@@ -20,7 +19,7 @@ class ProvidersViewModel(
         logoUri: String?,
         onDuplicate: () -> Unit,
         onSuccess: () -> Unit
-    ){
+    ) {
         viewModelScope.launch {
             val cleanName = name.trim().lowercase()
 
@@ -39,6 +38,7 @@ class ProvidersViewModel(
             onSuccess()
         }
     }
+
     fun updateProvider(
         id: Int,
         name: String,
@@ -49,19 +49,25 @@ class ProvidersViewModel(
     ) {
         viewModelScope.launch {
             val cleanName = name.trim().lowercase()
-            if (repository.existsByName(cleanName)) {
+            val duplicate = repository.existsDuplicateForUpdate(cleanName, id)
+
+            if (duplicate) {
                 onDuplicate()
                 return@launch
-            }
-            repository.update(
-                Provider(
-                    id = id,
-                    name = name.trim().lowercase(),
-                    logoRes = logRes,
-                    logoUri = logoUri
+            } else {
+                repository.update(
+                    Provider(
+                        id = id,
+                        name = cleanName,
+                        logoRes = logRes,
+                        logoUri = logoUri
+                    )
                 )
-            )
-            onSuccess()
+
+                onSuccess()
+            }
+
+
         }
     }
 

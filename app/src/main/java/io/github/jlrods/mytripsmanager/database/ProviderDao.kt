@@ -25,6 +25,9 @@ interface ProviderDao {
     @Query("SELECT COUNT(*) FROM providers")
     suspend fun count(): Int
 
+    @Query("SELECT COUNT(*) FROM providers WHERE name = :name AND id != :id")
+    suspend fun existsDuplicateForUpdate(name: String, id: Int): Int
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(provider: Provider)
 

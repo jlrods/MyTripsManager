@@ -15,6 +15,10 @@ class ProviderRepository(
         return providerDao.countByName(name) > 0
     }
 
+    suspend fun existsDuplicateForUpdate(name: String, id: Int): Boolean {
+        return providerDao.existsDuplicateForUpdate(name,id) > 0
+    }
+
 
     suspend fun insert(provider: Provider) =
         providerDao.insert(provider)

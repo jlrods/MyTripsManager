@@ -171,7 +171,7 @@ fun ProviderFormScreen(
 
                 selectedLogoUri != null -> {
                     Image(
-                        painter =  rememberAsyncImagePainter(
+                        painter = rememberAsyncImagePainter(
                             model = File(selectedLogoUri.toString())
                         ),
                         contentDescription = "Selected Logo",
@@ -212,7 +212,7 @@ fun ProviderFormScreen(
                             }
                         )
 
-                    }else {
+                    } else {
                         // EDIT MODE
                         providerToEdit?.let {
                             viewModel.updateProvider(
@@ -240,12 +240,6 @@ fun ProviderFormScreen(
         ) {
             Text(if (isEditMode) "Update Provider" else "Save Provider")
         }
-
-        }
-
-
-
-
         if (isEditMode) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -261,38 +255,49 @@ fun ProviderFormScreen(
                 }
             }
         }
-        if (showDeleteDialog) {
-            AlertDialog(
-                onDismissRequest = { showDeleteDialog = false },
-                title = { Text("Delete Provider") },
-                text = { Text("Are you sure you want to delete this provider?") },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            providerToEdit?.let {
-                                viewModel.deleteProvider(Provider(it.id,it.name,it.logoRes,it.logoUri,))
-                            }
-                            showDeleteDialog = false
-                            Toast.makeText(
-                                context,
-                                "Provider deleted",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            onSave()
+
+    }
+
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Provider") },
+            text = { Text("Are you sure you want to delete this provider?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        providerToEdit?.let {
+                            viewModel.deleteProvider(
+                                Provider(
+                                    it.id,
+                                    it.name,
+                                    it.logoRes,
+                                    it.logoUri,
+                                )
+                            )
                         }
-                    ) {
-                        Text("Delete")
+                        showDeleteDialog = false
+                        Toast.makeText(
+                            context,
+                            "Provider deleted",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        onSave()
                     }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = { showDeleteDialog = false }
-                    ) {
-                        Text("Cancel")
-                    }
+                ) {
+                    Text("Delete")
                 }
-            )
-        }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDeleteDialog = false }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
     if (showLogoPicker) {
 
         ModalBottomSheet(
@@ -374,5 +379,5 @@ fun ProviderFormScreen(
             }
         }
     }
-    }
+}
 
