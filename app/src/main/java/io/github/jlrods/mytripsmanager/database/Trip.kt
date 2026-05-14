@@ -10,7 +10,7 @@ data class Trip(
     val name: String,
     val start: Long,
     val end: Long,
-    val cashBudget: Double,
-    val cashSpent: Double,
-    val totalCost: Double
+    val cashBudget: Double = 0.0,
+    val cashSpent: Double = 0.0,
+    val totalCost: Double = 0.0
 )
