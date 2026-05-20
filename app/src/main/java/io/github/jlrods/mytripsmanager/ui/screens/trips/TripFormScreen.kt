@@ -38,6 +38,13 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import io.github.jlrods.mytripsmanager.database.CityWithCountry
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.Alignment
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -318,39 +325,49 @@ fun TripFormScreen(
     if (showCityDialog) {
 
         AlertDialog(
-            onDismissRequest = {
-                showCityDialog = false
-            },
+            onDismissRequest = { showCityDialog = false },
             confirmButton = {},
-            title = {
-                Text("Select Destination")
-            },
+            title = { Text("Select Destination City") },
             text = {
 
-                LazyColumn {
+                Column {
 
-                    items(cities) { city ->
+                    LazyColumn {
 
-                        Button(
-                            onClick = {
+                        items(cities) { city ->
 
-                                selectedCity = city
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
 
-                                showCityDialog = false
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
+                                        selectedCity = city
+                                        showCityDialog = false
+                                    }
+                                    .padding(vertical = 10.dp, horizontal = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
 
-                            Text(
-                                "${city.city.name.replaceFirstChar { it.uppercase() }}, ${
-                                    city.country.name.replaceFirstChar { it.uppercase() }
-                                }"
-                            )
+                                Image(
+                                    painter = painterResource(
+                                        id = city.country.flagRes
+                                    ),
+                                    contentDescription = city.country.name,
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .clip(RoundedCornerShape(4.dp))
+                                )
+
+                                Spacer(modifier = Modifier.width(12.dp))
+
+                                Text(
+                                    text = "${city.city.name.trim().replaceFirstChar { it.uppercase() }} - ${
+                                        city.country.name.trim().replaceFirstChar { it.uppercase() }
+                                    }",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
                         }
-
-                        Spacer(
-                            modifier = Modifier.height(8.dp)
-                        )
                     }
                 }
             }
