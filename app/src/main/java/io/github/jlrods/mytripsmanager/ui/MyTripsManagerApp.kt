@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.jlrods.mytripsmanager.database.MyTripsManagerDb
 import io.github.jlrods.mytripsmanager.data.CityRepository
+import io.github.jlrods.mytripsmanager.data.DestinationRepository
 import io.github.jlrods.mytripsmanager.data.ProviderRepository
 import io.github.jlrods.mytripsmanager.data.TripRepository
 import io.github.jlrods.mytripsmanager.database.Provider
@@ -64,7 +65,9 @@ fun MyTripsManagerApp() {
     //Trips screen initialization
     var selectedTrip by remember { mutableStateOf<Trip?>(null) }
     val tripRepository = TripRepository(database.tripDao())
-    val tripFactory = TripsViewModelFactory(tripRepository)
+
+    val destinationRepository = DestinationRepository(database.destinationDao())
+    val tripFactory = TripsViewModelFactory(tripRepository,destinationRepository)
     val tripsViewModel: TripsViewModel = viewModel(factory = tripFactory)
 
 
@@ -107,6 +110,7 @@ fun MyTripsManagerApp() {
                 AppDestinations.ADD_TRIP -> {
                     TripFormScreen(
                         viewModel = tripsViewModel,
+                        citiesViewModel = citiesViewModel,
                         modifier = Modifier.padding(innerPadding),
                         onSave = {
                             currentDestination = AppDestinations.TRIPS

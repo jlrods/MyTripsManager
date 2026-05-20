@@ -3,6 +3,7 @@ package io.github.jlrods.mytripsmanager.ui.screens.cities
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.jlrods.mytripsmanager.data.CityRepository
+import io.github.jlrods.mytripsmanager.data.DestinationRepository
 import io.github.jlrods.mytripsmanager.database.City
 import io.github.jlrods.mytripsmanager.database.CityWithCountry
 import io.github.jlrods.mytripsmanager.database.Provider

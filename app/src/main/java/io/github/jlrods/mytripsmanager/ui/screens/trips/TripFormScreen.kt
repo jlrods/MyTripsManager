@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -18,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -25,14 +27,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import io.github.jlrods.mytripsmanager.database.CityWithCountry
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TripFormScreen(
     viewModel: TripsViewModel,
+    citiesViewModel: CitiesViewModel,
     modifier: Modifier = Modifier,
     onSave: () -> Unit
 ) {
@@ -56,6 +67,16 @@ fun TripFormScreen(
     }
 
     var showEndDatePicker by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    val cities by citiesViewModel.cities.collectAsState()
+
+    var selectedCity by rememberSaveable {
+        mutableStateOf<CityWithCountry?>(null)
+    }
+
+    var showCityDialog by rememberSaveable {
         mutableStateOf(false)
     }
 
@@ -120,6 +141,34 @@ fun TripFormScreen(
             )
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value =
+                selectedCity?.city?.name
+                    ?.replaceFirstChar { it.uppercase() }
+                    ?: "",
+            onValueChange = {},
+            readOnly = true,
+            label = {
+                Text("Destination City")
+            },
+            modifier = Modifier.fillMaxWidth(),
+            trailingIcon = {
+
+                IconButton(
+                    onClick = {
+                        showCityDialog = true
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = null
+                    )
+                }
+            }
+        )
+
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
@@ -147,10 +196,11 @@ fun TripFormScreen(
                     return@Button
                 }
 
-                viewModel.insertTrip(
+                viewModel.insertTripWithDestination(
                     name = tripName,
                     startDate = startDate,
                     endDate = endDate,
+                    cityId = selectedCity?.city?.id,
                     onDuplicate = {
 
                         Toast.makeText(
@@ -161,7 +211,15 @@ fun TripFormScreen(
                     },
                     onSuccess = {
                         onSave()
-                    }
+                    },
+                    onMissingCity = {
+
+                        Toast.makeText(
+                            context,
+                            "Please select a destination city",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    },
                 )
             },
             modifier = Modifier.fillMaxWidth()
@@ -255,6 +313,48 @@ fun TripFormScreen(
                 state = datePickerState
             )
         }
+    }
+
+    if (showCityDialog) {
+
+        AlertDialog(
+            onDismissRequest = {
+                showCityDialog = false
+            },
+            confirmButton = {},
+            title = {
+                Text("Select Destination")
+            },
+            text = {
+
+                LazyColumn {
+
+                    items(cities) { city ->
+
+                        Button(
+                            onClick = {
+
+                                selectedCity = city
+
+                                showCityDialog = false
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+
+                            Text(
+                                "${city.city.name.replaceFirstChar { it.uppercase() }}, ${
+                                    city.country.name.replaceFirstChar { it.uppercase() }
+                                }"
+                            )
+                        }
+
+                        Spacer(
+                            modifier = Modifier.height(8.dp)
+                        )
+                    }
+                }
+            }
+        )
     }
 }
 
