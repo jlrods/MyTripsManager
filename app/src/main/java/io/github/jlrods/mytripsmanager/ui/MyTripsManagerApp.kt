@@ -23,8 +23,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.jlrods.mytripsmanager.database.MyTripsManagerDb
 import io.github.jlrods.mytripsmanager.data.CityRepository
+import io.github.jlrods.mytripsmanager.data.DestinationRepository
 import io.github.jlrods.mytripsmanager.data.ProviderRepository
+import io.github.jlrods.mytripsmanager.data.TripRepository
 import io.github.jlrods.mytripsmanager.database.Provider
+import io.github.jlrods.mytripsmanager.database.Trip
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModel
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModelFactory
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesScreen
@@ -33,6 +36,11 @@ import io.github.jlrods.mytripsmanager.ui.screens.providers.ProviderFormScreen
 import io.github.jlrods.mytripsmanager.ui.screens.providers.ProvidersScreen
 import io.github.jlrods.mytripsmanager.ui.screens.providers.ProvidersViewModel
 import io.github.jlrods.mytripsmanager.ui.screens.providers.ProvidersViewModelFactory
+import io.github.jlrods.mytripsmanager.ui.screens.trips.TripDetailScreen
+import io.github.jlrods.mytripsmanager.ui.screens.trips.TripFormScreen
+import io.github.jlrods.mytripsmanager.ui.screens.trips.TripsScreen
+import io.github.jlrods.mytripsmanager.ui.screens.trips.TripsViewModel
+import io.github.jlrods.mytripsmanager.ui.screens.trips.TripsViewModelFactory
 
 @PreviewScreenSizes
 @Composable
@@ -53,6 +61,14 @@ fun MyTripsManagerApp() {
     val providersViewModel: ProvidersViewModel =
         viewModel(factory = providersFactory)
     var selectedProvider by remember { mutableStateOf<Provider?>(null) }
+
+    //Trips screen initialization
+    var selectedTrip by remember { mutableStateOf<Trip?>(null) }
+    val tripRepository = TripRepository(database.tripDao())
+
+    val destinationRepository = DestinationRepository(database.destinationDao())
+    val tripFactory = TripsViewModelFactory(tripRepository,destinationRepository)
+    val tripsViewModel: TripsViewModel = viewModel(factory = tripFactory)
 
 
     NavigationSuiteScaffold(
@@ -81,8 +97,36 @@ fun MyTripsManagerApp() {
 
             when (currentDestination) {
                 AppDestinations.TRIPS -> {
-                    MainScreen(modifier = Modifier.padding(innerPadding))
+                    TripsScreen(
+                        viewModel = tripsViewModel,
+                        modifier = Modifier.padding(innerPadding),
+                        onAddTripClick = {
+                            currentDestination = AppDestinations.ADD_TRIP
+                        }
+
+                    )
                 }
+
+                AppDestinations.ADD_TRIP -> {
+                    TripFormScreen(
+                        viewModel = tripsViewModel,
+                        citiesViewModel = citiesViewModel,
+                        modifier = Modifier.padding(innerPadding),
+                        onSave = {
+                            currentDestination = AppDestinations.TRIPS
+                        }
+                    )
+                }
+                AppDestinations.TRIP_DETAILS -> {
+                    TripDetailScreen(
+                        trip = selectedTrip,
+                        onBack = {
+                            currentDestination = AppDestinations.TRIPS
+                        }
+                    )
+                }
+
+
 
                 AppDestinations.CITIES -> {
                     CitiesScreen(

@@ -16,6 +16,9 @@ interface TripDao {
     @Query("SELECT * FROM trips WHERE id = :id")
     fun getTrip(id: Int): Flow<Trip>
 
+    @Query("SELECT * FROM trips WHERE name = :name LIMIT 1")
+    suspend fun getTripByName(name: String): Trip?
+
     @Query("SELECT * FROM trips WHERE totalCost > :cost ORDER BY name ASC")
     fun getTripsWithCostGreaterThan(cost: Double): Flow<List<Trip>>
 
@@ -59,7 +62,7 @@ interface TripDao {
     suspend fun count(): Int
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(trip: Trip)
+    suspend fun insert(trip: Trip): Long
 
     @Update
     suspend fun update(trip: Trip)
