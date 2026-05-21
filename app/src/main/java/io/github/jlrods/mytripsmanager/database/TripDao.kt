@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
@@ -51,6 +52,27 @@ interface TripDao {
         WHERE cities.countryId = :countryId
     """)
     fun getTripsByCountry(countryId: Int): Flow<List<Trip>>
+
+
+    @Query("""
+    SELECT
+        trips.id AS id,
+        trips.name AS name,
+        trips.start AS startDate,
+        trips.`end` AS endDate,
+        countries.name AS countryName,
+        countries.flagRes AS flagRes
+    FROM trips
+    INNER JOIN destinations
+        ON trips.id = destinations.tripId
+    INNER JOIN cities
+        ON destinations.cityId = cities.id
+    INNER JOIN countries
+        ON cities.countryId = countries.id
+    GROUP BY trips.id
+    ORDER BY trips.start ASC
+""")
+    fun getTripListItems(): Flow<List<TripListItem>>
 
     @Query("SELECT * FROM trips WHERE cashSpent > cashBudget ORDER BY name ASC")
     fun getTripsWithOverspentBudget(): Flow<List<Trip>>

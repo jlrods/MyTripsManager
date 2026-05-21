@@ -6,6 +6,7 @@ import io.github.jlrods.mytripsmanager.data.DestinationRepository
 import io.github.jlrods.mytripsmanager.data.TripRepository
 import io.github.jlrods.mytripsmanager.database.Destination
 import io.github.jlrods.mytripsmanager.database.Trip
+import io.github.jlrods.mytripsmanager.database.TripListItem
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -16,7 +17,7 @@ class TripsViewModel(
     private val destinationRepository: DestinationRepository
 ) : ViewModel() {
 
-    val trips: StateFlow<List<Trip>> =
+    val trips: StateFlow<List<TripListItem>> =
         repository.allTrips.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
