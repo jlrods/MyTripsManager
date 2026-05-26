@@ -1,6 +1,7 @@
 package io.github.jlrods.mytripsmanager.ui.screens.trips
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,10 +40,11 @@ import io.github.jlrods.mytripsmanager.database.TripListItem
 fun TripsScreen(
     modifier: Modifier = Modifier,
     viewModel: TripsViewModel,
-    onAddTripClick: () -> Unit
+    onAddTripClick: () -> Unit,
+    onTripClick: (Int) -> Unit
 ) {
 
-    val trips by viewModel.trips.collectAsState()
+    val trips by viewModel.trips.collectAsState(initial = emptyList())
 
     Scaffold(
         floatingActionButton = {
@@ -78,7 +80,7 @@ fun TripsScreen(
             ) {
 
                 items(trips) { trip ->
-                    TripItem(trip)
+                    TripItem(trip = trip, onClick = onTripClick)
                 }
             }
         }
@@ -88,12 +90,16 @@ fun TripsScreen(
 
 @Composable
 fun TripItem(
-    trip: TripListItem
+    trip: TripListItem,
+    onClick: (Int) -> Unit
 ) {
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable {
+                onClick(trip.id)
+            }
             .padding(horizontal = 16.dp, vertical = 6.dp),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 4.dp

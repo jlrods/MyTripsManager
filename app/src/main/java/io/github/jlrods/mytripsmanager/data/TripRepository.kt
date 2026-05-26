@@ -22,4 +22,8 @@ class TripRepository(private val tripDao: TripDao) {
 
     suspend fun delete(trip: Trip) =
         tripDao.delete(trip = trip)
+
+    fun getTripById(id: Int): Flow<Trip?> {
+        return tripDao.getTripById(id)
+    }
 }

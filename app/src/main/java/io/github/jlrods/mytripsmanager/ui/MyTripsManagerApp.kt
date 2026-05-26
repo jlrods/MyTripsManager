@@ -16,7 +16,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import io.github.jlrods.mytripsmanager.MainScreen
 import io.github.jlrods.mytripsmanager.ui.components.MyTripsManagerTopAppBar
 import io.github.jlrods.mytripsmanager.ui.navigation.AppDestinations
 import androidx.compose.ui.platform.LocalContext
@@ -63,13 +62,15 @@ fun MyTripsManagerApp() {
     var selectedProvider by remember { mutableStateOf<Provider?>(null) }
 
     //Trips screen initialization
-    var selectedTrip by remember { mutableStateOf<Trip?>(null) }
+    var selectedTripId by rememberSaveable {
+        mutableStateOf<Int?>(null)
+    }
+
     val tripRepository = TripRepository(database.tripDao())
 
     val destinationRepository = DestinationRepository(database.destinationDao())
     val tripFactory = TripsViewModelFactory(tripRepository,destinationRepository)
     val tripsViewModel: TripsViewModel = viewModel(factory = tripFactory)
-
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
@@ -101,7 +102,12 @@ fun MyTripsManagerApp() {
                         viewModel = tripsViewModel,
                         modifier = Modifier.padding(innerPadding),
                         onAddTripClick = {
+                            selectedTripId = null
                             currentDestination = AppDestinations.ADD_TRIP
+                        },
+                        onTripClick = { tripID ->
+                            selectedTripId = tripID
+                            currentDestination = AppDestinations.EDIT_TRIP
                         }
 
                     )
@@ -117,10 +123,19 @@ fun MyTripsManagerApp() {
                         }
                     )
                 }
-                AppDestinations.TRIP_DETAILS -> {
+                AppDestinations.EDIT_TRIP -> {
+
+                    val tripToEdit by tripsViewModel
+                        .getTripById(selectedTripId ?: 0)
+                        .collectAsState(initial = null)
+
                     TripDetailScreen(
-                        trip = selectedTrip,
-                        onBack = {
+                        viewModel = tripsViewModel,
+                        citiesViewModel = citiesViewModel,
+                        modifier = Modifier.padding(innerPadding),
+                        tripToEdit = tripToEdit,
+                        onSave = {
+                            selectedTripId = null
                             currentDestination = AppDestinations.TRIPS
                         }
                     )

@@ -52,6 +52,9 @@ class TripsViewModel(
         }
     }
 
+    fun getTripById(id: Int) =
+        repository.getTripById(id)
+
     fun insertTripWithDestination(
         name: String,
         startDate: Long,

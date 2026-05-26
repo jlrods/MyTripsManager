@@ -83,6 +83,9 @@ interface TripDao {
     @Query("SELECT COUNT(*) FROM trips")
     suspend fun count(): Int
 
+    @Query("SELECT * FROM trips WHERE id = :id")
+    fun getTripById(id: Int): Flow<Trip?>
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(trip: Trip): Long
 
