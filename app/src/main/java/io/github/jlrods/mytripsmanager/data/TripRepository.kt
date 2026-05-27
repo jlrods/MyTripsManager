@@ -1,14 +1,19 @@
 package io.github.jlrods.mytripsmanager.data
 
+import io.github.jlrods.mytripsmanager.database.DestinationDao
 import io.github.jlrods.mytripsmanager.database.Trip
 import io.github.jlrods.mytripsmanager.database.TripDao
 import io.github.jlrods.mytripsmanager.database.TripListItem
 import kotlinx.coroutines.flow.Flow
 
-class TripRepository(private val tripDao: TripDao) {
+class TripRepository(
+    private val tripDao: TripDao,
+    private val destinationDao: DestinationDao
+) {
 
     val allTrips: Flow<List<TripListItem>> =
     tripDao.getTripListItems()
+
     suspend fun findByName(name: String): Trip? {
         return tripDao.getTripByName(name)
     }
@@ -26,4 +31,7 @@ class TripRepository(private val tripDao: TripDao) {
     fun getTripById(id: Int): Flow<Trip?> {
         return tripDao.getTripById(id)
     }
+
+    fun getDestinationsForTrip(tripId: Int) =
+        destinationDao.getDestinationsForTrip(tripId)
 }

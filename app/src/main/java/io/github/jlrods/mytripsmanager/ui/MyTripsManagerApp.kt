@@ -26,7 +26,6 @@ import io.github.jlrods.mytripsmanager.data.DestinationRepository
 import io.github.jlrods.mytripsmanager.data.ProviderRepository
 import io.github.jlrods.mytripsmanager.data.TripRepository
 import io.github.jlrods.mytripsmanager.database.Provider
-import io.github.jlrods.mytripsmanager.database.Trip
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModel
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModelFactory
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesScreen
@@ -66,7 +65,7 @@ fun MyTripsManagerApp() {
         mutableStateOf<Int?>(null)
     }
 
-    val tripRepository = TripRepository(database.tripDao())
+    val tripRepository = TripRepository(database.tripDao(),database.destinationDao())
 
     val destinationRepository = DestinationRepository(database.destinationDao())
     val tripFactory = TripsViewModelFactory(tripRepository,destinationRepository)

@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
@@ -18,6 +19,16 @@ interface DestinationDao {
 
     @Query("SELECT * FROM destinations WHERE tripId = :tripId ORDER BY start ASC")
     fun getDestinationsByTrip(tripId: Int): Flow<List<Destination>>
+
+    @Transaction
+    @Query("""
+    SELECT * FROM destinations
+    WHERE tripId = :tripId
+    ORDER BY start
+    """)
+    fun getDestinationsForTrip(
+        tripId: Int
+    ): Flow<List<DestinationWithCityAndCountry>>
 
     @Query("SELECT * FROM destinations WHERE cityId = :cityId ORDER BY start ASC")
     fun getDestinationsByCity(cityId: Int): Flow<List<Destination>>

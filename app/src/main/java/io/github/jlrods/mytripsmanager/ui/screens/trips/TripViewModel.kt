@@ -5,10 +5,13 @@ import androidx.lifecycle.viewModelScope
 import io.github.jlrods.mytripsmanager.data.DestinationRepository
 import io.github.jlrods.mytripsmanager.data.TripRepository
 import io.github.jlrods.mytripsmanager.database.Destination
+import io.github.jlrods.mytripsmanager.database.DestinationWithCityAndCountry
 import io.github.jlrods.mytripsmanager.database.Trip
 import io.github.jlrods.mytripsmanager.database.TripListItem
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -23,6 +26,10 @@ class TripsViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
+    private val _tripDestinations =
+        MutableStateFlow<List<DestinationWithCityAndCountry>>(emptyList())
+
+    val tripDestinations = _tripDestinations.asStateFlow()
 
     fun insertTrip(
         name: String,
@@ -54,6 +61,18 @@ class TripsViewModel(
 
     fun getTripById(id: Int) =
         repository.getTripById(id)
+
+    fun loadDestinationsForTrip(tripId: Int) {
+
+        viewModelScope.launch {
+
+            repository
+                .getDestinationsForTrip(tripId)
+                .collect {
+                    _tripDestinations.value = it
+                }
+        }
+    }
 
     fun insertTripWithDestination(
         name: String,
