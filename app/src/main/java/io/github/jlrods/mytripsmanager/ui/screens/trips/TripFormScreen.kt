@@ -45,7 +45,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.Alignment
-import io.github.jlrods.mytripsmanager.database.Trip
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
