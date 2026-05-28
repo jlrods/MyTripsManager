@@ -10,4 +10,21 @@ class DestinationRepository(
     suspend fun insert(destination: Destination) {
         destinationDao.insert(destination)
     }
+
+    suspend fun insertDestination(
+        tripId: Int,
+        cityId: Int,
+        start: Long,
+        end: Long
+    ) {
+
+        destinationDao.insert(
+            Destination(
+                tripId = tripId,
+                cityId = cityId,
+                start =start,
+                end = end
+            )
+        )
+    }
 }

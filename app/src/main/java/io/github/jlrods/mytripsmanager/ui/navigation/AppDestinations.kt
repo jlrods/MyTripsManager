@@ -20,7 +20,7 @@ enum class AppDestinations(
 
     ADD_PROVIDER(label = "Add Provider",icon = R.drawable.ic_provider,showInBottomNav = false),
 
-    EDIT_PROVIDER(label = "Edit Provider",icon = R.drawable.ic_provider,showInBottomNav = false)
+    EDIT_PROVIDER(label = "Edit Provider",icon = R.drawable.ic_provider,showInBottomNav = false),
 
-
+    ADD_DESTINATION(label = "Add Destination",icon = R.drawable.ic_destination,showInBottomNav = false)
 }

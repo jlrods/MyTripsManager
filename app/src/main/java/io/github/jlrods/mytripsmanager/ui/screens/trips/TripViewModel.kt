@@ -74,6 +74,27 @@ class TripsViewModel(
         }
     }
 
+    fun insertDestination(
+        tripId: Int,
+        cityId: Int,
+        start: Long,
+        end: Long,
+        onSuccess: () -> Unit
+    ) {
+
+        viewModelScope.launch {
+
+            destinationRepository.insertDestination(
+                tripId = tripId,
+                cityId = cityId,
+                start = start,
+                end = end
+            )
+
+            onSuccess()
+        }
+    }
+
     fun insertTripWithDestination(
         name: String,
         startDate: Long,

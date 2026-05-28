@@ -30,6 +30,7 @@ import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModel
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModelFactory
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesScreen
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CityFormScreen
+import io.github.jlrods.mytripsmanager.ui.screens.destinations.AddDestinationScreen
 import io.github.jlrods.mytripsmanager.ui.screens.providers.ProviderFormScreen
 import io.github.jlrods.mytripsmanager.ui.screens.providers.ProvidersScreen
 import io.github.jlrods.mytripsmanager.ui.screens.providers.ProvidersViewModel
@@ -100,15 +101,14 @@ fun MyTripsManagerApp() {
                     TripsScreen(
                         viewModel = tripsViewModel,
                         modifier = Modifier.padding(innerPadding),
-                        onAddTripClick = {
-                            selectedTripId = null
-                            currentDestination = AppDestinations.ADD_TRIP
-                        },
                         onTripClick = { tripID ->
                             selectedTripId = tripID
                             currentDestination = AppDestinations.EDIT_TRIP
+                        },
+                        onAddTripClick = {
+                            selectedTripId = null
+                            currentDestination = AppDestinations.ADD_TRIP
                         }
-
                     )
                 }
 
@@ -136,11 +136,25 @@ fun MyTripsManagerApp() {
                         onSave = {
                             selectedTripId = null
                             currentDestination = AppDestinations.TRIPS
+                        },
+                        onAddDestinationClick = {
+                            currentDestination = AppDestinations.ADD_DESTINATION
                         }
                     )
                 }
 
+                AppDestinations.ADD_DESTINATION -> {
 
+                    AddDestinationScreen(
+                        tripId = selectedTripId ?: 0,
+                        viewModel = tripsViewModel,
+                        citiesViewModel = citiesViewModel,
+                        modifier = Modifier.padding(innerPadding),
+                        onSave = {
+                            currentDestination = AppDestinations.EDIT_TRIP
+                        }
+                    )
+                }
 
                 AppDestinations.CITIES -> {
                     CitiesScreen(

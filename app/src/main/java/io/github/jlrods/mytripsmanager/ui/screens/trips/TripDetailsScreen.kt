@@ -32,6 +32,7 @@ fun TripDetailScreen(
     citiesViewModel: CitiesViewModel,
     modifier: Modifier = Modifier,
     tripToEdit: Trip? = null,
+    onAddDestinationClick: () -> Unit,
     onSave: () -> Unit
 ) {
     val destinations by viewModel.tripDestinations.collectAsState()
@@ -95,7 +96,7 @@ fun TripDetailScreen(
                     )
 
                     Spacer(Modifier.height(8.dp))
-                    
+
                     if (destinations.isEmpty()) {
 
                         Text("No destinations yet")
@@ -155,7 +156,7 @@ fun TripDetailScreen(
         ) {
 
             FloatingActionButton(
-                onClick = { /* Add Destination */ }
+                onClick = onAddDestinationClick
             ) {
                 Text("D")
             }
