@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -108,27 +109,46 @@ fun TripDetailScreen(
 
                         destinations.forEach { destination ->
 
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(vertical = 8.dp)
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp)
                             ) {
 
-                                Image(
-                                    painter = painterResource(
-                                        id = destination.cityWithCountry.country.flagRes
-                                    ),
-                                    contentDescription = destination.cityWithCountry.country.name,
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clip(RoundedCornerShape(4.dp))
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
 
-                                Spacer(Modifier.width(12.dp))
+                                    Image(
+                                        painter = painterResource(
+                                            id = destination.cityWithCountry.country.flagRes
+                                        ),
+                                        contentDescription =
+                                            destination.cityWithCountry.country.name,
+                                        modifier = Modifier
+                                            .size(28.dp)
+                                            .clip(RoundedCornerShape(4.dp))
+                                    )
+
+                                    Spacer(Modifier.width(12.dp))
+
+                                    Text(
+                                        text =
+                                            destination.cityWithCountry.city.name
+                                                .replaceFirstChar { it.uppercase() },
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                }
+
+                                Spacer(Modifier.height(4.dp))
 
                                 Text(
                                     text =
-                                        destination.cityWithCountry.city.name
-                                            .replaceFirstChar { it.uppercase() }
+                                        "${formatDate(destination.destination.start)} → ${
+                                            formatDate(destination.destination.end)
+                                        }",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.padding(start = 40.dp)
                                 )
                             }
                         }
@@ -143,7 +163,7 @@ fun TripDetailScreen(
                     Spacer(Modifier.height(8.dp))
 
                     Text("No expenses yet")
-                    
+
                     Spacer(Modifier.height(96.dp))
                 }
 

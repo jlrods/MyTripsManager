@@ -24,7 +24,7 @@ interface DestinationDao {
     @Query("""
     SELECT * FROM destinations
     WHERE tripId = :tripId
-    ORDER BY start
+    ORDER BY start ASC
     """)
     fun getDestinationsForTrip(
         tripId: Int

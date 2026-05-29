@@ -83,14 +83,12 @@ class TripsViewModel(
     ) {
 
         viewModelScope.launch {
-
-            destinationRepository.insertDestination(
+            destinationRepository.insert(Destination(
                 tripId = tripId,
                 cityId = cityId,
                 start = start,
                 end = end
-            )
-
+            ))
             onSuccess()
         }
     }
@@ -134,16 +132,13 @@ class TripsViewModel(
 
             if (tripId > 0) {
 
-                destinationRepository.insert(
-                    Destination(
+                insertDestination(
                         tripId = tripId.toInt(),
                         cityId = cityId,
                         start = startDate,
-                        end = endDate
-                    )
+                        end = endDate,
+                        onSuccess = {onSuccess()}
                 )
-
-                onSuccess()
             }
         }
     }
