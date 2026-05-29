@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import io.github.jlrods.mytripsmanager.database.CityWithCountry
+import io.github.jlrods.mytripsmanager.database.Trip
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModel
 import io.github.jlrods.mytripsmanager.ui.screens.trips.TripsViewModel
 import io.github.jlrods.mytripsmanager.ui.screens.trips.formatDate
@@ -50,7 +51,7 @@ import io.github.jlrods.mytripsmanager.ui.screens.trips.formatDate
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddDestinationScreen(
-    tripId: Int,
+    trip: Trip,
     viewModel: TripsViewModel,
     citiesViewModel: CitiesViewModel,
     modifier: Modifier = Modifier,
@@ -190,8 +191,26 @@ fun AddDestinationScreen(
                     return@Button
                 }
 
+                if (startDate < trip.start){
+                    Toast.makeText(
+                        context,
+                        "Start date cannot be before trip start date",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@Button
+                }
+
+                if (endDate > trip.end){
+                    Toast.makeText(
+                        context,
+                        "End date cannot be after trip end date",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@Button
+                }
+
                 viewModel.insertDestination(
-                    tripId = tripId,
+                    tripId = trip.id,
                     cityId = cityId,
                     start =  startDate,
                     end = endDate,

@@ -145,15 +145,22 @@ fun MyTripsManagerApp() {
 
                 AppDestinations.ADD_DESTINATION -> {
 
-                    AddDestinationScreen(
-                        tripId = selectedTripId ?: 0,
-                        viewModel = tripsViewModel,
-                        citiesViewModel = citiesViewModel,
-                        modifier = Modifier.padding(innerPadding),
-                        onSave = {
-                            currentDestination = AppDestinations.EDIT_TRIP
-                        }
-                    )
+                    val tripToEdit by tripsViewModel
+                        .getTripById(selectedTripId ?: 0)
+                        .collectAsState(initial = null)
+
+                    tripToEdit?.let { trip ->
+
+                        AddDestinationScreen(
+                            trip = trip,
+                            viewModel = tripsViewModel,
+                            citiesViewModel = citiesViewModel,
+                            modifier = Modifier.padding(innerPadding),
+                            onSave = {
+                                currentDestination = AppDestinations.EDIT_TRIP
+                            }
+                        )
+                    }
                 }
 
                 AppDestinations.CITIES -> {
