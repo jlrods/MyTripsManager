@@ -142,4 +142,12 @@ class TripsViewModel(
             }
         }
     }
+
+    fun deleteTrip(trip: Trip) {
+
+        viewModelScope.launch {
+
+            repository.delete(trip)
+        }
+    }
 }
