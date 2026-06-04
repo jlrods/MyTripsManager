@@ -7,7 +7,26 @@ class DestinationRepository(
     private val destinationDao: DestinationDao
 ) {
 
-    suspend fun insert(destination: Destination) {
-        destinationDao.insert(destination)
+//    suspend fun insert(destination: Destination) {
+//        destinationDao.insert(destination)
+//    }
+suspend fun insert(destination: Destination) {
+
+    val previousDestination =
+        destinationDao.getPreviousDestination(
+            tripId = destination.tripId,
+            newStart = destination.start
+        )
+
+    previousDestination?.let { previous ->
+
+        destinationDao.update(
+            previous.copy(
+                end = destination.start
+            )
+        )
     }
+
+    destinationDao.insert(destination)
+}
 }

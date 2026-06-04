@@ -44,6 +44,28 @@ interface DestinationDao {
     @Query("SELECT * FROM destinations WHERE start BETWEEN :startDate AND :endDate ORDER BY start ASC")
     fun getDestinationsInDateRange(startDate: Long, endDate: Long): Flow<List<Destination>>
 
+    @Query("""
+    SELECT * FROM destinations
+    WHERE tripId = :tripId
+    AND start < :newStart
+    ORDER BY start DESC
+    LIMIT 1
+""")
+    suspend fun getPreviousDestination(
+        tripId: Int,
+        newStart: Long
+    ): Destination?
+
+    @Query("""
+    SELECT * FROM destinations
+    WHERE tripId = :tripId
+    ORDER BY start DESC
+    LIMIT 1
+""")
+    suspend fun getLastDestination(
+        tripId: Int
+    ): Destination?
+
     @Query("SELECT COUNT(*) FROM destinations")
     suspend fun count(): Int
 
