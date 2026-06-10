@@ -1,5 +1,6 @@
 package io.github.jlrods.mytripsmanager.ui
 
+import ExpensesViewModelFactory
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -23,6 +24,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.jlrods.mytripsmanager.database.MyTripsManagerDb
 import io.github.jlrods.mytripsmanager.data.CityRepository
 import io.github.jlrods.mytripsmanager.data.DestinationRepository
+import io.github.jlrods.mytripsmanager.data.ExpenseRepository
 import io.github.jlrods.mytripsmanager.data.ProviderRepository
 import io.github.jlrods.mytripsmanager.data.TripRepository
 import io.github.jlrods.mytripsmanager.database.Provider
@@ -31,6 +33,8 @@ import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModelFactory
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesScreen
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CityFormScreen
 import io.github.jlrods.mytripsmanager.ui.screens.destinations.AddDestinationScreen
+import io.github.jlrods.mytripsmanager.ui.screens.expenses.ExpenseFormScreen
+import io.github.jlrods.mytripsmanager.ui.screens.expenses.ExpensesViewModel
 import io.github.jlrods.mytripsmanager.ui.screens.providers.ProviderFormScreen
 import io.github.jlrods.mytripsmanager.ui.screens.providers.ProvidersScreen
 import io.github.jlrods.mytripsmanager.ui.screens.providers.ProvidersViewModel
@@ -71,6 +75,10 @@ fun MyTripsManagerApp() {
     val destinationRepository = DestinationRepository(database.destinationDao())
     val tripFactory = TripsViewModelFactory(tripRepository,destinationRepository)
     val tripsViewModel: TripsViewModel = viewModel(factory = tripFactory)
+
+    val expenseRepository = ExpenseRepository(database.expenseDao(), database.expenseTypeDao())
+    val expensesViewModelFactory = ExpensesViewModelFactory(expenseRepository)
+    val expensesViewModel: ExpensesViewModel = viewModel(factory = expensesViewModelFactory)
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
@@ -139,6 +147,9 @@ fun MyTripsManagerApp() {
                         },
                         onAddDestinationClick = {
                             currentDestination = AppDestinations.ADD_DESTINATION
+                        },
+                        onAddExpenseClick = {
+                            currentDestination = AppDestinations.ADD_EXPENSE
                         }
                     )
                 }
@@ -160,6 +171,35 @@ fun MyTripsManagerApp() {
                                 currentDestination = AppDestinations.EDIT_TRIP
                             }
                         )
+                    }
+                }
+
+                AppDestinations.ADD_EXPENSE -> {
+
+                    val tripToEdit by tripsViewModel
+                        .getTripById(selectedTripId ?: 0)
+                        .collectAsState(initial = null)
+
+                    val providers by providersViewModel
+                        .getAllProviders()
+                        .collectAsState(initial = emptyList())
+
+                    val expenseTypes by expensesViewModel
+                        .getAllExpenseTypes()
+                        .collectAsState(initial = emptyList())
+
+                    tripToEdit?.let { trip ->
+
+                        ExpenseFormScreen(
+                            trip = trip,
+                            viewModel = expensesViewModel,
+                            providers = providers,
+                            expenseTypes = expenseTypes,
+                            onSave = {
+                                currentDestination = AppDestinations.EDIT_TRIP
+                            }
+                        )
+
                     }
                 }
 

@@ -46,6 +46,7 @@ fun TripDetailScreen(
     modifier: Modifier = Modifier,
     tripToEdit: Trip? = null,
     onAddDestinationClick: () -> Unit,
+    onAddExpenseClick: () -> Unit,
     onSave: () -> Unit
 ) {
     val destinations by viewModel.tripDestinations.collectAsState()
@@ -74,10 +75,6 @@ fun TripDetailScreen(
                         .padding(16.dp)
                 ) {
 
-//                    Text(
-//                        text = trip.name,
-//                        style = MaterialTheme.typography.titleLarge
-//                    )
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -225,7 +222,7 @@ fun TripDetailScreen(
             Spacer(Modifier.height(8.dp))
 
             FloatingActionButton(
-                onClick = { /* Add Expense */ }
+                onClick = onAddExpenseClick
             ) {
                 Text("E")
             }

@@ -7,9 +7,6 @@ class DestinationRepository(
     private val destinationDao: DestinationDao
 ) {
 
-//    suspend fun insert(destination: Destination) {
-//        destinationDao.insert(destination)
-//    }
 suspend fun insert(destination: Destination) {
 
     val previousDestination =
