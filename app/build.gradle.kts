@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material3.adaptive.navigation.suite)
     implementation("androidx.compose.foundation:foundation")
+    implementation("io.coil-kt:coil-compose:2.6.0")
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.lifecycle.viewmodel.compose)

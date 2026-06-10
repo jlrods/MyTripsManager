@@ -1,6 +1,7 @@
 package io.github.jlrods.mytripsmanager.ui.screens.expenses
 
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,10 +11,13 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import io.github.jlrods.mytripsmanager.database.*
+import io.github.jlrods.mytripsmanager.ui.components.ProviderLogo
 
 @Composable
 fun ExpenseFormScreen(
@@ -42,7 +46,7 @@ fun ExpenseFormScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-
+        Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = "Add Expense",
             style = MaterialTheme.typography.titleLarge
@@ -63,32 +67,112 @@ fun ExpenseFormScreen(
         )
 
         // EXPENSE TYPE
-        OutlinedTextField(
-            value = selectedType?.name ?: "",
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Expense Type") },
-            modifier = Modifier.fillMaxWidth(),
-            trailingIcon = {
-                IconButton(onClick = { showTypeDialog = true }) {
-                    Icon(Icons.Default.ArrowDropDown, null)
+//        OutlinedTextField(
+//            value = selectedType?.name ?: "",
+//            onValueChange = {},
+//            readOnly = true,
+//            label = { Text("Expense Type") },
+//            modifier = Modifier.fillMaxWidth(),
+//            trailingIcon = {
+//                IconButton(onClick = { showTypeDialog = true }) {
+//                    Icon(Icons.Default.ArrowDropDown, null)
+//                }
+//            }
+//        )
+        Column(modifier = Modifier.fillMaxWidth()) {
+
+            Text(
+                text = "Expense Type",
+                style = MaterialTheme.typography.labelMedium
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showTypeDialog = true }
+                    .padding(12.dp)
+            ) {
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    selectedType?.let { type ->
+
+                        Image(
+                            painter = painterResource(id = type.iconRes),
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+
+                        Spacer(Modifier.width(8.dp))
+                    }
+
+                    Text(
+                        text = selectedType?.name ?: "Select expense type",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
                 }
             }
-        )
+
+            Divider()
+        }
 
         // PROVIDER
-        OutlinedTextField(
-            value = selectedProvider?.name ?: "",
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Provider") },
-            modifier = Modifier.fillMaxWidth(),
-            trailingIcon = {
-                IconButton(onClick = { showProviderDialog = true }) {
-                    Icon(Icons.Default.ArrowDropDown, null)
+//        OutlinedTextField(
+//            value = selectedProvider?.name ?: "",
+//            onValueChange = {},
+//            readOnly = true,
+//            label = { Text("Provider") },
+//            modifier = Modifier.fillMaxWidth(),
+//            trailingIcon = {
+//                IconButton(onClick = { showProviderDialog = true }) {
+//                    Icon(Icons.Default.ArrowDropDown, null)
+//                }
+//            }
+//        )
+        Column(modifier = Modifier.fillMaxWidth()) {
+
+            Text(
+                text = "Provider",
+                style = MaterialTheme.typography.labelMedium
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showProviderDialog = true }
+                    .padding(12.dp)
+            ) {
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    selectedProvider?.let { provider ->
+
+                        ProviderLogo(
+                            logoRes = provider.logoRes,
+                            logoUri = provider.logoUri,
+                            modifier = Modifier.size(20.dp)
+                        )
+
+                        Spacer(Modifier.width(8.dp))
+                    }
+
+                    Text(
+                        text = selectedProvider?.name ?: "Select provider",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
                 }
             }
-        )
+
+            Divider()
+        }
 
         Button(
             onClick = {
@@ -136,16 +220,27 @@ fun ExpenseFormScreen(
             text = {
                 LazyColumn {
                     items(providers) { provider ->
-                        Text(
-                            text = provider.name,
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
                                     selectedProvider = provider
                                     showProviderDialog = false
                                 }
-                                .padding(12.dp)
-                        )
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            ProviderLogo(
+                                logoRes = provider.logoRes,
+                                logoUri = provider.logoUri,
+                                modifier = Modifier.size(28.dp)
+                            )
+
+                            Spacer(Modifier.width(12.dp))
+
+                            Text(provider.name)
+                        }
                     }
                 }
             }
@@ -162,16 +257,27 @@ fun ExpenseFormScreen(
             text = {
                 LazyColumn {
                     items(expenseTypes) { type ->
-                        Text(
-                            text = type.name,
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
                                     selectedType = type
                                     showTypeDialog = false
                                 }
-                                .padding(12.dp)
-                        )
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            Image(
+                                painter = painterResource(id = type.iconRes),
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp)
+                            )
+
+                            Spacer(Modifier.width(12.dp))
+
+                            Text(type.name)
+                        }
                     }
                 }
             }

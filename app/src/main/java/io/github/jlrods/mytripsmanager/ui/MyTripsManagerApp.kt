@@ -166,7 +166,8 @@ fun MyTripsManagerApp() {
                             trip = trip,
                             viewModel = tripsViewModel,
                             citiesViewModel = citiesViewModel,
-                            modifier = Modifier.padding(innerPadding),
+                            modifier = Modifier.fillMaxSize()
+                                .padding(innerPadding),
                             onSave = {
                                 currentDestination = AppDestinations.EDIT_TRIP
                             }
