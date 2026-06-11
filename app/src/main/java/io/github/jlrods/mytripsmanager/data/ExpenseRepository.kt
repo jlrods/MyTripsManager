@@ -15,6 +15,10 @@ class ExpenseRepository(
         expenseDao.insert(expense)
     }
 
+    suspend fun delete(expense: Expense) {
+        expenseDao.delete(expense)
+    }
+
     fun getExpensesByTrip(
         tripId: Int
     ): Flow<List<Expense>> {

@@ -1,5 +1,6 @@
 package io.github.jlrods.mytripsmanager.ui.screens.expenses
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.jlrods.mytripsmanager.data.ExpenseRepository
@@ -45,5 +46,15 @@ class ExpensesViewModel(
 
     fun getAllExpenseTypes(): Flow<List<ExpenseType>> {
         return repository.getAllExpenseTypes()
+    }
+
+    fun deleteExpense(expense: Expense) {
+        Log.d(
+            "DELETE_EXPENSE",
+            "Deleting ${expense.id} ${expense.name}"
+        )
+        viewModelScope.launch {
+            repository.delete(expense)
+        }
     }
 }

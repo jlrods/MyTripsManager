@@ -25,5 +25,10 @@ suspend fun insert(destination: Destination) {
     }
 
     destinationDao.insert(destination)
-}
+    }
+
+    suspend fun delete(destination: Destination) {
+        destinationDao.delete(destination)
+    }
+
 }

@@ -1,6 +1,8 @@
 package io.github.jlrods.mytripsmanager.ui.screens.trips
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -44,6 +47,11 @@ import io.github.jlrods.mytripsmanager.ui.components.ProviderLogo
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModel
 import io.github.jlrods.mytripsmanager.ui.screens.expenses.ExpensesViewModel
 
+enum class SelectionMode {
+    NONE,
+    DESTINATION,
+    EXPENSE
+}
 @Composable
 fun TripDetailScreen(
     viewModel: TripsViewModel,
@@ -71,6 +79,19 @@ fun TripDetailScreen(
     var showDeleteDialog by remember {
         mutableStateOf(false)
     }
+
+    var selectionMode by remember {
+        mutableStateOf(SelectionMode.NONE)
+    }
+
+    var selectedDestinations by remember {
+        mutableStateOf(setOf<Int>())
+    }
+
+    var selectedExpenses by remember {
+        mutableStateOf(setOf<Int>())
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -151,11 +172,50 @@ fun TripDetailScreen(
                     } else {
 
                         destinations.forEach { destination ->
-
+                            val isSelected =
+                                selectedDestinations.contains(
+                                    destination.destination.id
+                                )
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 8.dp)
+                                    .background(
+                                        if (isSelected)
+                                            MaterialTheme.colorScheme.primaryContainer
+                                        else
+                                            Color.Transparent
+                                    )
+                                    .combinedClickable(
+                                        onClick = {
+
+                                            if (selectionMode == SelectionMode.DESTINATION) {
+
+                                                selectedDestinations =
+                                                    if (selectedDestinations.contains(destination.destination.id)) {
+
+                                                        selectedDestinations -
+                                                                destination.destination.id
+
+                                                    } else {
+
+                                                        selectedDestinations +
+                                                                destination.destination.id
+                                                    }
+                                            }
+                                        },
+
+
+                                        onLongClick = {
+
+                                            selectionMode = SelectionMode.DESTINATION
+
+                                            selectedExpenses = emptySet()
+
+                                            selectedDestinations =
+                                                setOf(destination.destination.id)
+                                        }
+                                    )
                             ) {
 
                                 Row(
@@ -215,27 +275,61 @@ fun TripDetailScreen(
 
                         expenses.forEach { expense ->
 
-
                             val provider =
                                 providers.firstOrNull {
                                     it.id == expense.providerId
                                 }
 
-
                             val type =
                                 expenseTypes.firstOrNull {
                                     it.id == expense.typeId
                                 }
-
-
-
+                            val isSelected =
+                                selectedExpenses.contains(
+                                    expense.id
+                                )
                             Column(
 
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 8.dp)
+                                    .background(
+                                        if (isSelected)
+                                            MaterialTheme.colorScheme.primaryContainer
+                                        else
+                                            Color.Transparent
+                                    )
+                                    .combinedClickable(
+                                        onClick = {
 
-                            ) {
+                                            if (selectionMode == SelectionMode.EXPENSE) {
+
+                                                selectedExpenses =
+                                                    if (selectedExpenses.contains(expense.id)) {
+
+                                                        selectedExpenses - expense.id
+
+                                                    } else {
+
+                                                        selectedExpenses + expense.id
+                                                    }
+                                            }
+                                        },
+
+
+                                        onLongClick = {
+
+                                            selectionMode = SelectionMode.EXPENSE
+
+                                            selectedDestinations = emptySet()
+
+                                            selectedExpenses =
+                                                setOf(expense.id)
+                                        }
+                                    )
+
+
+                                    ) {
 
 
                                 Row(
@@ -267,9 +361,6 @@ fun TripDetailScreen(
                                     Spacer(
                                         Modifier.width(12.dp)
                                     )
-
-
-
                                     Column {
 
 
@@ -280,7 +371,6 @@ fun TripDetailScreen(
                                             style = MaterialTheme.typography.bodyLarge
 
                                         )
-
 
                                         Row(
 
@@ -323,8 +413,6 @@ fun TripDetailScreen(
 
 
                                     }
-
-
 
                                     Spacer(
                                         Modifier.weight(1f)
@@ -423,6 +511,97 @@ fun TripDetailScreen(
                     }
                 }
             )
+        }
+
+
+        if (selectionMode != SelectionMode.NONE) {
+
+            Column(
+                horizontalAlignment = Alignment.End
+            ) {
+
+
+                FloatingActionButton(
+
+                    onClick = {
+
+                        selectionMode = SelectionMode.NONE
+
+                        selectedDestinations = emptySet()
+
+                        selectedExpenses = emptySet()
+                    }
+
+                ) {
+
+                    Text("X")
+                }
+
+
+                Spacer(
+                    Modifier.height(8.dp)
+                )
+
+
+                FloatingActionButton(
+
+                    onClick = {
+
+                        when(selectionMode) {
+
+                            SelectionMode.DESTINATION -> {
+
+                                selectedDestinations.forEach { id ->
+
+                                    destinations
+                                        .firstOrNull {
+                                            it.destination.id == id
+                                        }
+                                        ?.let {
+
+                                            viewModel.deleteDestination(
+                                                it.destination
+                                            )
+                                        }
+                                }
+                            }
+
+
+                            SelectionMode.EXPENSE -> {
+
+                                selectedExpenses.forEach { id ->
+
+                                    expenses
+                                        .firstOrNull {
+                                            it.id == id
+                                        }
+                                        ?.let { expense ->
+
+                                            expensesViewModel.deleteExpense(
+                                                expense
+                                            )
+                                        }
+                                }
+                            }
+
+
+                            else -> {}
+                        }
+
+
+                        selectionMode = SelectionMode.NONE
+
+                        selectedDestinations = emptySet()
+
+                        selectedExpenses = emptySet()
+
+                    }
+
+                ) {
+
+                    Text("🗑")
+                }
+            }
         }
     }
 
