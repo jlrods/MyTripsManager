@@ -36,13 +36,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import io.github.jlrods.mytripsmanager.database.ExpenseType
+import io.github.jlrods.mytripsmanager.database.Provider
 import io.github.jlrods.mytripsmanager.database.Trip
+import io.github.jlrods.mytripsmanager.ui.components.ProviderLogo
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModel
+import io.github.jlrods.mytripsmanager.ui.screens.expenses.ExpensesViewModel
 
 @Composable
 fun TripDetailScreen(
     viewModel: TripsViewModel,
     citiesViewModel: CitiesViewModel,
+    expensesViewModel: ExpensesViewModel,
+    providers: List<Provider>,
+    expenseTypes: List<ExpenseType>,
     modifier: Modifier = Modifier,
     tripToEdit: Trip? = null,
     onAddDestinationClick: () -> Unit,
@@ -57,6 +64,8 @@ fun TripDetailScreen(
             viewModel.loadDestinationsForTrip(it)
         }
     }
+    val expenses by expensesViewModel.getExpensesForTrip(tripToEdit?.id ?: 0)
+        .collectAsState(initial = emptyList())
 
     var showDeleteDialog by remember {
         mutableStateOf(false)
@@ -195,7 +204,153 @@ fun TripDetailScreen(
 
                     Spacer(Modifier.height(8.dp))
 
-                    Text("No expenses yet")
+
+                    if (expenses.isEmpty()) {
+
+                        Text("No expenses yet")
+
+                    } else {
+
+
+                        expenses.forEach { expense ->
+
+
+                            val provider =
+                                providers.firstOrNull {
+                                    it.id == expense.providerId
+                                }
+
+
+                            val type =
+                                expenseTypes.firstOrNull {
+                                    it.id == expense.typeId
+                                }
+
+
+
+                            Column(
+
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp)
+
+                            ) {
+
+
+                                Row(
+
+                                    verticalAlignment = Alignment.CenterVertically
+
+                                ) {
+
+
+                                    // Expense Type icon
+
+                                    type?.let {
+
+
+                                        Image(
+
+                                            painter = painterResource(
+                                                id = it.iconRes
+                                            ),
+
+                                            contentDescription = null,
+
+                                            modifier = Modifier.size(32.dp)
+
+                                        )
+
+                                    }
+
+
+
+                                    Spacer(
+                                        Modifier.width(12.dp)
+                                    )
+
+
+
+                                    Column {
+
+
+                                        Text(
+
+                                            text = expense.name,
+
+                                            style = MaterialTheme.typography.bodyLarge
+
+                                        )
+
+
+                                        Row(
+
+                                            verticalAlignment = Alignment.CenterVertically
+
+                                        ) {
+
+
+                                            provider?.let {
+
+
+                                                ProviderLogo(
+
+                                                    logoRes = it.logoRes,
+
+                                                    modifier = Modifier.size(20.dp)
+
+                                                )
+
+
+                                                Spacer(
+                                                    Modifier.width(6.dp)
+                                                )
+
+                                            }
+
+
+                                            Text(
+
+                                                text =
+                                                    provider?.name
+                                                        ?: "Unknown provider",
+
+                                                style =
+                                                    MaterialTheme.typography.bodyMedium
+
+                                            )
+
+                                        }
+
+
+                                    }
+
+
+
+                                    Spacer(
+                                        Modifier.weight(1f)
+                                    )
+
+
+
+                                    Text(
+
+                                        text =
+                                            "€%.2f".format(expense.cost),
+
+                                        style =
+                                            MaterialTheme.typography.bodyLarge
+
+                                    )
+
+
+                                }
+
+                            }
+
+                        }
+
+                    }
 
                     Spacer(Modifier.height(96.dp))
                 }

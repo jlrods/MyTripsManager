@@ -135,10 +135,19 @@ fun MyTripsManagerApp() {
                     val tripToEdit by tripsViewModel
                         .getTripById(selectedTripId ?: 0)
                         .collectAsState(initial = null)
+                    val providers by providersViewModel
+                        .getAllProviders()
+                        .collectAsState(initial = emptyList())
+                    val expenseTypes by expensesViewModel
+                        .getAllExpenseTypes()
+                        .collectAsState(initial = emptyList())
 
                     TripDetailScreen(
                         viewModel = tripsViewModel,
                         citiesViewModel = citiesViewModel,
+                        expensesViewModel = expensesViewModel,
+                        providers = providers,
+                        expenseTypes = expenseTypes,
                         modifier = Modifier.padding(innerPadding),
                         tripToEdit = tripToEdit,
                         onSave = {
