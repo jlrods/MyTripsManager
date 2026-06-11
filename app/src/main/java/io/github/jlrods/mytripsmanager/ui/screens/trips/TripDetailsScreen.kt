@@ -34,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import io.github.jlrods.mytripsmanager.database.ExpenseType
@@ -251,14 +252,12 @@ fun TripDetailScreen(
 
                                         Image(
 
-                                            painter = painterResource(
-                                                id = it.iconRes
-                                            ),
-
+                                            painter = painterResource(id = it.iconRes),
                                             contentDescription = null,
-
-                                            modifier = Modifier.size(32.dp)
-
+                                            modifier = Modifier.size(32.dp),
+                                            colorFilter = ColorFilter.tint(
+                                                    MaterialTheme.colorScheme.onSurface
+                                                    )
                                         )
 
                                     }

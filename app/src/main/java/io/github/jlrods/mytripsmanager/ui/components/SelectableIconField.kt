@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
@@ -63,14 +64,12 @@ fun SelectableIconField(
 
                 Image(
 
-                    painter = painterResource(
-                        id = iconRes
-                    ),
-
+                    painter = painterResource(id = iconRes),
                     contentDescription = null,
-
+                    colorFilter = ColorFilter.tint(
+                        MaterialTheme.colorScheme.onSurface
+                    ),
                     modifier = Modifier.size(28.dp)
-
                 )
 
 
