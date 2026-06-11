@@ -18,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import io.github.jlrods.mytripsmanager.database.*
 import io.github.jlrods.mytripsmanager.ui.components.ProviderLogo
+import io.github.jlrods.mytripsmanager.ui.components.SelectableIconField
 
 @Composable
 fun ExpenseFormScreen(
@@ -67,110 +68,42 @@ fun ExpenseFormScreen(
         )
 
         // EXPENSE TYPE
-//        OutlinedTextField(
-//            value = selectedType?.name ?: "",
-//            onValueChange = {},
-//            readOnly = true,
-//            label = { Text("Expense Type") },
-//            modifier = Modifier.fillMaxWidth(),
-//            trailingIcon = {
-//                IconButton(onClick = { showTypeDialog = true }) {
-//                    Icon(Icons.Default.ArrowDropDown, null)
-//                }
-//            }
-//        )
         Column(modifier = Modifier.fillMaxWidth()) {
 
-            Text(
-                text = "Expense Type",
-                style = MaterialTheme.typography.labelMedium
-            )
+            SelectableIconField(
 
-            Spacer(Modifier.height(4.dp))
+                label = "Expense Type",
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { showTypeDialog = true }
-                    .padding(12.dp)
-            ) {
+                text = selectedType?.name
+                    ?: "Select expense type",
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                iconRes = selectedType?.iconRes,
 
-                    selectedType?.let { type ->
-
-                        Image(
-                            painter = painterResource(id = type.iconRes),
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
-                        )
-
-                        Spacer(Modifier.width(8.dp))
-                    }
-
-                    Text(
-                        text = selectedType?.name ?: "Select expense type",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                onClick = {
+                    showTypeDialog = true
                 }
-            }
 
+            )
             Divider()
         }
 
         // PROVIDER
-//        OutlinedTextField(
-//            value = selectedProvider?.name ?: "",
-//            onValueChange = {},
-//            readOnly = true,
-//            label = { Text("Provider") },
-//            modifier = Modifier.fillMaxWidth(),
-//            trailingIcon = {
-//                IconButton(onClick = { showProviderDialog = true }) {
-//                    Icon(Icons.Default.ArrowDropDown, null)
-//                }
-//            }
-//        )
         Column(modifier = Modifier.fillMaxWidth()) {
 
-            Text(
-                text = "Provider",
-                style = MaterialTheme.typography.labelMedium
-            )
+            SelectableIconField(
 
-            Spacer(Modifier.height(4.dp))
+                label = "Provider",
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { showProviderDialog = true }
-                    .padding(12.dp)
-            ) {
+                text = selectedProvider?.name
+                    ?: "Select provider",
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                iconRes = selectedProvider?.logoRes,
 
-                    selectedProvider?.let { provider ->
-
-                        ProviderLogo(
-                            logoRes = provider.logoRes,
-                            logoUri = provider.logoUri,
-                            modifier = Modifier.size(20.dp)
-                        )
-
-                        Spacer(Modifier.width(8.dp))
-                    }
-
-                    Text(
-                        text = selectedProvider?.name ?: "Select provider",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                onClick = {
+                    showProviderDialog = true
                 }
-            }
 
+            )
             Divider()
         }
 
