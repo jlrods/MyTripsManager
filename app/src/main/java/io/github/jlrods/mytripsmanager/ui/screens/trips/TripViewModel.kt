@@ -151,6 +151,14 @@ class TripsViewModel(
         }
     }
 
+    fun updateTrip(trip: Trip) {
+
+        viewModelScope.launch {
+
+            repository.update(trip)
+        }
+    }
+
     fun deleteDestination(destination: Destination) {
         viewModelScope.launch {
             destinationRepository.delete(destination)

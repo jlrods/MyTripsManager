@@ -37,6 +37,15 @@ interface ExpenseDao {
     @Query("SELECT COUNT(*) FROM expenses")
     suspend fun count(): Int
 
+    @Query("""
+    SELECT COALESCE(SUM(cost),0)
+    FROM expenses
+    WHERE tripId = :tripId
+""")
+    suspend fun getTotalCostForTrip(
+        tripId: Int
+    ): Double
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(expense: Expense)
 

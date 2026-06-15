@@ -76,7 +76,7 @@ fun MyTripsManagerApp() {
     val tripFactory = TripsViewModelFactory(tripRepository,destinationRepository)
     val tripsViewModel: TripsViewModel = viewModel(factory = tripFactory)
 
-    val expenseRepository = ExpenseRepository(database.expenseDao(), database.expenseTypeDao())
+    val expenseRepository = ExpenseRepository(database.expenseDao(), database.expenseTypeDao(), database.tripDao())
     val expensesViewModelFactory = ExpensesViewModelFactory(expenseRepository)
     val expensesViewModel: ExpensesViewModel = viewModel(factory = expensesViewModelFactory)
 

@@ -74,6 +74,16 @@ interface TripDao {
 """)
     fun getTripListItems(): Flow<List<TripListItem>>
 
+    @Query("""
+    UPDATE trips 
+    SET totalCost = :totalCost
+    WHERE id = :tripId
+""")
+    suspend fun updateTotalCost(
+        tripId: Int,
+        totalCost: Double
+    )
+
     @Query("SELECT * FROM trips WHERE cashSpent > cashBudget ORDER BY name ASC")
     fun getTripsWithOverspentBudget(): Flow<List<Trip>>
 

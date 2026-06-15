@@ -2,6 +2,7 @@ package io.github.jlrods.mytripsmanager.ui.screens.trips
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,19 +20,26 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,16 +73,57 @@ fun TripDetailScreen(
     onAddExpenseClick: () -> Unit,
     onSave: () -> Unit
 ) {
+    var tripName by rememberSaveable {
+        mutableStateOf("")
+    }
+
+    var startDate by rememberSaveable {
+        mutableStateOf(0L)
+    }
+
+    var endDate by rememberSaveable {
+        mutableStateOf(0L)
+    }
+
+    var cashBudget by rememberSaveable {
+        mutableStateOf("")
+    }
+
+    LaunchedEffect(tripToEdit?.id) {
+
+        tripToEdit?.let {
+
+            tripName = it.name
+
+            startDate = it.start
+
+            endDate = it.end
+
+            cashBudget =
+                it.cashBudget.toString()
+        }
+    }
+    var isEditingName by rememberSaveable {
+        mutableStateOf(false)
+    }
+
     val destinations by viewModel.tripDestinations.collectAsState()
     LaunchedEffect(tripToEdit?.id) {
 
         tripToEdit?.id?.let {
-
             viewModel.loadDestinationsForTrip(it)
         }
     }
     val expenses by expensesViewModel.getExpensesForTrip(tripToEdit?.id ?: 0)
         .collectAsState(initial = emptyList())
+
+    var showStartDatePicker by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var showEndDatePicker by rememberSaveable {
+        mutableStateOf(false)
+    }
 
     var showDeleteDialog by remember {
         mutableStateOf(false)
@@ -112,38 +161,207 @@ fun TripDetailScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
 
-                        Text(
-                            text = trip.name,
-                            style = MaterialTheme.typography.titleLarge
-                        )
+//                        Text(
+//                            text = trip.name,
+//                            style = MaterialTheme.typography.titleLarge
+//                        )
+//                        OutlinedTextField(
+//
+//                            value = tripName,
+//
+//                            onValueChange = {
+//                                tripName = it
+//                            },
+//
+//                            label = {
+//                                Text("Trip Name")
+//                            },
+//
+//                            modifier = Modifier.fillMaxWidth()
+//
+//                        )
 
-                        IconButton(
-                            onClick = {
-                                showDeleteDialog = true
-                            }
+//                        IconButton(
+//                            onClick = {
+//                                showDeleteDialog = true
+//                            }
+//                        ) {
+//                            Icon(
+//                                imageVector = Icons.Default.Delete,
+//                                contentDescription = "Delete Trip"
+//                            )
+//                        }
+                        Row(
+
+                            modifier = Modifier.fillMaxWidth(),
+
+                            verticalAlignment = Alignment.CenterVertically,
+
+                            horizontalArrangement = Arrangement.SpaceBetween
+
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Delete Trip"
-                            )
+
+
+                            if (isEditingName) {
+
+
+                                OutlinedTextField(
+
+                                    value = tripName,
+
+                                    onValueChange = {
+                                        tripName = it
+                                    },
+
+                                    label = {
+                                        Text("Trip Name")
+                                    },
+
+                                    modifier = Modifier.weight(1f)
+
+                                )
+
+
+                            } else {
+
+
+                                Text(
+
+                                    text = tripName,
+
+                                    style = MaterialTheme.typography.titleLarge,
+
+                                    modifier = Modifier.weight(1f)
+
+                                )
+
+                            }
+
+
+
+                            IconButton(
+
+                                onClick = {
+
+
+                                    if (isEditingName) {
+
+
+                                        viewModel.updateTrip(trip.copy(name = tripName))
+                                        isEditingName = false
+
+                                    } else {
+
+                                        isEditingName = true
+
+                                    }
+
+                                }
+
+                            ) {
+
+                                Icon(
+
+                                    imageVector = Icons.Default.Edit,
+
+                                    contentDescription = "Edit Trip Name"
+
+                                )
+
+                            }
+
+
+                            if (!isEditingName) {
+
+                                IconButton(
+                                    onClick = {
+                                        showDeleteDialog = true
+                                    }
+                                ) {
+
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Delete Trip"
+                                    )
+                                }
+                            }
                         }
                     }
 
                     Spacer(Modifier.height(16.dp))
 
-                    TripInfoRow(
-                        label = "Start Date",
-                        value = formatDate(trip.start)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showStartDatePicker = true
+                            }
+                    ) {
 
-                    TripInfoRow(
-                        label = "End Date",
-                        value = formatDate(trip.end)
-                    )
+                        OutlinedTextField(
 
-                    TripInfoRow(
-                        label = "Cash Budget",
-                        value = "€%.2f".format(trip.cashBudget)
+                            value = formatDate(startDate),
+
+                            onValueChange = {},
+
+                            readOnly = true,
+
+                            enabled = false,
+
+                            label = {
+                                Text("Start Date")
+                            },
+
+                            modifier = Modifier.fillMaxWidth()
+
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showEndDatePicker = true
+                            }
+                    ) {
+
+                        OutlinedTextField(
+
+                            value = formatDate(endDate),
+
+                            onValueChange = {},
+
+                            readOnly = true,
+
+                            enabled = false,
+
+                            label = {
+                                Text("End Date")
+                            },
+
+                            modifier = Modifier.fillMaxWidth()
+
+                        )
+                    }
+
+                    OutlinedTextField(
+
+                        value = cashBudget,
+
+                        onValueChange = {
+                            cashBudget = it
+                        },
+
+                        label = {
+                            Text("Cash Budget")
+                        },
+
+                        prefix = {
+                            Text("€")
+                        },
+
+                        modifier = Modifier.fillMaxWidth()
+
                     )
 
                     TripInfoRow(
@@ -337,8 +555,6 @@ fun TripDetailScreen(
                                     verticalAlignment = Alignment.CenterVertically
 
                                 ) {
-
-
                                     // Expense Type icon
 
                                     type?.let {
@@ -355,8 +571,6 @@ fun TripDetailScreen(
                                         )
 
                                     }
-
-
 
                                     Spacer(
                                         Modifier.width(12.dp)
@@ -418,8 +632,6 @@ fun TripDetailScreen(
                                         Modifier.weight(1f)
                                     )
 
-
-
                                     Text(
 
                                         text =
@@ -440,6 +652,42 @@ fun TripDetailScreen(
                     }
 
                     Spacer(Modifier.height(96.dp))
+                    Button(
+
+                        onClick = {
+
+                            val budget =
+                                cashBudget.toDoubleOrNull()
+                                    ?: 0.0
+
+
+                            viewModel.updateTrip(
+
+                                trip.copy(
+
+                                    name = tripName,
+
+                                    start = startDate,
+
+                                    end = endDate,
+
+                                    cashBudget = budget
+                                )
+
+                            )
+
+
+                            onSave()
+
+                        },
+
+                        modifier = Modifier.fillMaxWidth()
+
+                    ) {
+
+                        Text("Save Trip Changes")
+
+                    }
                 }
 
             } ?: Box(
@@ -467,6 +715,92 @@ fun TripDetailScreen(
                 onClick = onAddExpenseClick
             ) {
                 Text("E")
+            }
+        }
+
+        if (showStartDatePicker) {
+
+            val datePickerState = rememberDatePickerState(
+                initialSelectedDateMillis = startDate
+            )
+
+            DatePickerDialog(
+                onDismissRequest = {
+                    showStartDatePicker = false
+                },
+                confirmButton = {
+
+                    TextButton(
+                        onClick = {
+
+                            startDate =
+                                datePickerState.selectedDateMillis
+                                    ?: startDate
+
+                            showStartDatePicker = false
+                        }
+                    ) {
+                        Text("OK")
+                    }
+                },
+                dismissButton = {
+
+                    TextButton(
+                        onClick = {
+                            showStartDatePicker = false
+                        }
+                    ) {
+                        Text("Cancel")
+                    }
+                }
+            ) {
+
+                DatePicker(
+                    state = datePickerState
+                )
+            }
+        }
+
+        if (showEndDatePicker) {
+
+            val datePickerState = rememberDatePickerState(
+                initialSelectedDateMillis = endDate
+            )
+
+            DatePickerDialog(
+                onDismissRequest = {
+                    showEndDatePicker = false
+                },
+                confirmButton = {
+
+                    TextButton(
+                        onClick = {
+
+                            endDate =
+                                datePickerState.selectedDateMillis
+                                    ?: endDate
+
+                            showEndDatePicker = false
+                        }
+                    ) {
+                        Text("OK")
+                    }
+                },
+                dismissButton = {
+
+                    TextButton(
+                        onClick = {
+                            showEndDatePicker = false
+                        }
+                    ) {
+                        Text("Cancel")
+                    }
+                }
+            ) {
+
+                DatePicker(
+                    state = datePickerState
+                )
             }
         }
 
