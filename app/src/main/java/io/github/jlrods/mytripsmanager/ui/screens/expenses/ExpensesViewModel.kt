@@ -63,13 +63,8 @@ class ExpensesViewModel(
     ) {
 
         viewModelScope.launch {
-
             repository.update(expense)
-            repository.updateTripTotalCost(
-                expense.tripId
-            )
             onSuccess()
         }
-
     }
 }
