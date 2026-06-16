@@ -26,6 +26,7 @@ fun ExpenseFormScreen(
     providers: List<Provider>,
     expenseTypes: List<ExpenseType>,
     modifier: Modifier = Modifier,
+    expenseToEdit: Expense? = null,
     onSave: () -> Unit
 ) {
 
@@ -40,6 +41,29 @@ fun ExpenseFormScreen(
     var showProviderDialog by rememberSaveable { mutableStateOf(false) }
     var showTypeDialog by rememberSaveable { mutableStateOf(false) }
 
+    LaunchedEffect(expenseToEdit, providers, expenseTypes) {
+
+        expenseToEdit?.let { expense ->
+
+
+            name = expense.name
+
+            cost = expense.cost.toString()
+
+//            selectedDate = expense.date
+
+            selectedProvider =
+                providers.firstOrNull {
+                    it.id == expense.providerId
+                }
+
+            selectedType =
+                expenseTypes.firstOrNull {
+                    it.id == expense.typeId
+                }
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -48,7 +72,10 @@ fun ExpenseFormScreen(
     ) {
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = "Add Expense",
+            if(expenseToEdit == null)
+                "Add Expense"
+            else
+                "Edit Expense",
             style = MaterialTheme.typography.titleLarge
         )
 
@@ -125,20 +152,56 @@ fun ExpenseFormScreen(
                     return@Button
                 }
 
-                viewModel.insertExpense(
-                    name = name,
-                    tripId = trip.id,
-                    typeId = selectedType!!.id,
-                    providerId = selectedProvider!!.id,
-                    date = System.currentTimeMillis(),
-                    cost = parsedCost
-                ) {
-                    onSave()
+                if(expenseToEdit == null) {
+
+                    viewModel.insertExpense(
+
+                        name = name,
+
+                        tripId = trip.id,
+
+                        typeId = selectedType!!.id,
+
+                        providerId = selectedProvider!!.id,
+
+                        date = System.currentTimeMillis(),
+
+                        cost = cost.toDouble()
+
+                    ) {
+                        onSave()
+                    }
+
+                }
+                else {
+
+                    viewModel.updateExpense(
+
+                        expenseToEdit.copy(
+
+                            name = name,
+
+                            typeId = selectedType!!.id,
+
+                            providerId = selectedProvider!!.id,
+
+//                            date = selectedDate,
+
+                            cost = cost.toDouble()
+                        )
+                    ) {
+                        onSave()
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Save Expense")
+            Text(
+                if(expenseToEdit == null)
+                    "Save Expense"
+                else
+                    "Update Expense"
+            )
         }
     }
 

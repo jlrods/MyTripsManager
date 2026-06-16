@@ -48,6 +48,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import io.github.jlrods.mytripsmanager.database.Destination
+import io.github.jlrods.mytripsmanager.database.Expense
 import io.github.jlrods.mytripsmanager.database.ExpenseType
 import io.github.jlrods.mytripsmanager.database.Provider
 import io.github.jlrods.mytripsmanager.database.Trip
@@ -70,7 +72,9 @@ fun TripDetailScreen(
     modifier: Modifier = Modifier,
     tripToEdit: Trip? = null,
     onAddDestinationClick: () -> Unit,
+    onEditDestinationClick: (Destination) -> Unit,
     onAddExpenseClick: () -> Unit,
+    onEditExpenseClick: (Expense) -> Unit,
     onSave: () -> Unit
 ) {
     var tripName by rememberSaveable {
@@ -161,38 +165,7 @@ fun TripDetailScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
 
-//                        Text(
-//                            text = trip.name,
-//                            style = MaterialTheme.typography.titleLarge
-//                        )
-//                        OutlinedTextField(
-//
-//                            value = tripName,
-//
-//                            onValueChange = {
-//                                tripName = it
-//                            },
-//
-//                            label = {
-//                                Text("Trip Name")
-//                            },
-//
-//                            modifier = Modifier.fillMaxWidth()
-//
-//                        )
-
-//                        IconButton(
-//                            onClick = {
-//                                showDeleteDialog = true
-//                            }
-//                        ) {
-//                            Icon(
-//                                imageVector = Icons.Default.Delete,
-//                                contentDescription = "Delete Trip"
-//                            )
-//                        }
                         Row(
-
                             modifier = Modifier.fillMaxWidth(),
 
                             verticalAlignment = Alignment.CenterVertically,
@@ -200,10 +173,7 @@ fun TripDetailScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
 
                         ) {
-
-
                             if (isEditingName) {
-
 
                                 OutlinedTextField(
 
@@ -220,10 +190,7 @@ fun TripDetailScreen(
                                     modifier = Modifier.weight(1f)
 
                                 )
-
-
                             } else {
-
 
                                 Text(
 
@@ -232,44 +199,29 @@ fun TripDetailScreen(
                                     style = MaterialTheme.typography.titleLarge,
 
                                     modifier = Modifier.weight(1f)
-
                                 )
-
                             }
-
-
 
                             IconButton(
 
                                 onClick = {
 
-
                                     if (isEditingName) {
-
-
                                         viewModel.updateTrip(trip.copy(name = tripName))
                                         isEditingName = false
 
                                     } else {
 
                                         isEditingName = true
-
                                     }
-
                                 }
-
                             ) {
 
                                 Icon(
-
                                     imageVector = Icons.Default.Edit,
-
                                     contentDescription = "Edit Trip Name"
-
                                 )
-
                             }
-
 
                             if (!isEditingName) {
 
@@ -405,10 +357,10 @@ fun TripDetailScreen(
                                             Color.Transparent
                                     )
                                     .combinedClickable(
+
                                         onClick = {
 
                                             if (selectionMode == SelectionMode.DESTINATION) {
-
                                                 selectedDestinations =
                                                     if (selectedDestinations.contains(destination.destination.id)) {
 
@@ -420,18 +372,29 @@ fun TripDetailScreen(
                                                         selectedDestinations +
                                                                 destination.destination.id
                                                     }
+                                            } else {
+                                                // Normal mode -> edit destination
+                                                onEditDestinationClick(
+                                                    destination.destination
+                                                )
                                             }
                                         },
 
 
                                         onLongClick = {
 
-                                            selectionMode = SelectionMode.DESTINATION
 
-                                            selectedExpenses = emptySet()
+                                            selectionMode =
+                                                SelectionMode.DESTINATION
+
+
+                                            selectedExpenses =
+                                                emptySet()
+
 
                                             selectedDestinations =
                                                 setOf(destination.destination.id)
+
                                         }
                                     )
                             ) {
@@ -519,21 +482,20 @@ fun TripDetailScreen(
                                     )
                                     .combinedClickable(
                                         onClick = {
-
                                             if (selectionMode == SelectionMode.EXPENSE) {
-
                                                 selectedExpenses =
                                                     if (selectedExpenses.contains(expense.id)) {
-
                                                         selectedExpenses - expense.id
-
                                                     } else {
-
                                                         selectedExpenses + expense.id
                                                     }
+                                            } else {
+                                                // Normal mode -> edit destination
+                                                onEditExpenseClick(
+                                                    expense
+                                                )
                                             }
                                         },
-
 
                                         onLongClick = {
 

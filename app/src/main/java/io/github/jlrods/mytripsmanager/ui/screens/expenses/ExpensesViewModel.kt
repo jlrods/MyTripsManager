@@ -35,7 +35,6 @@ class ExpensesViewModel(
                     cost = cost
                 )
             )
-
             onSuccess()
         }
     }
@@ -56,5 +55,21 @@ class ExpensesViewModel(
         viewModelScope.launch {
             repository.delete(expense)
         }
+    }
+
+    fun updateExpense(
+        expense: Expense,
+        onSuccess: () -> Unit
+    ) {
+
+        viewModelScope.launch {
+
+            repository.update(expense)
+            repository.updateTripTotalCost(
+                expense.tripId
+            )
+            onSuccess()
+        }
+
     }
 }

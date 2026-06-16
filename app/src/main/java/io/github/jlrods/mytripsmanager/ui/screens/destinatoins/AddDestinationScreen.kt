@@ -31,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,6 +44,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import io.github.jlrods.mytripsmanager.database.CityWithCountry
+import io.github.jlrods.mytripsmanager.database.Destination
 import io.github.jlrods.mytripsmanager.database.Trip
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModel
 import io.github.jlrods.mytripsmanager.ui.screens.trips.TripsViewModel
@@ -55,6 +57,7 @@ fun AddDestinationScreen(
     viewModel: TripsViewModel,
     citiesViewModel: CitiesViewModel,
     modifier: Modifier = Modifier,
+    destinationToEdit: Destination? = null,
     onSave: () -> Unit
 ) {
 
@@ -86,6 +89,24 @@ fun AddDestinationScreen(
         mutableStateOf(false)
     }
 
+    LaunchedEffect(destinationToEdit, cities) {
+
+        destinationToEdit?.let { destination ->
+
+
+            startDate =
+                destination.start
+
+            endDate =
+                destination.end
+
+            selectedCity =
+                cities.firstOrNull {
+                    it.city.id == destination.cityId
+                }
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -94,7 +115,11 @@ fun AddDestinationScreen(
     ) {
 
         Text(
-            text = "Add Destination",
+            text =
+                if(destinationToEdit == null)
+                    "Add Destination"
+                else
+                    "Edit Destination",
             style = MaterialTheme.typography.titleLarge
         )
 
@@ -209,22 +234,46 @@ fun AddDestinationScreen(
                     return@Button
                 }
 
-                viewModel.insertDestination(
-                    tripId = trip.id,
-                    cityId = cityId,
-                    start =  startDate,
-                    end = endDate,
-                    onSuccess = {
+                if(destinationToEdit == null) {
+
+                    viewModel.insertDestination(
+                        tripId = trip.id,
+                        cityId = cityId,
+                        start = startDate,
+                        end = endDate,
+                        onSuccess = {
+                            onSave()
+                        }
+                    )
+                }
+                else {
+
+                    viewModel.updateDestination(
+
+                        destinationToEdit.copy(
+
+                            cityId = cityId,
+
+                            start = startDate,
+
+                            end = endDate
+
+                        )
+
+                    ) {
                         onSave()
                     }
-                )
+                }
             },
             modifier = Modifier.fillMaxWidth()
         )
 
         {
-
-            Text("Save Destination")
+            Text(
+                text = if(destinationToEdit == null)
+                "Save Destination"
+            else
+                "Update Destination")
         }
     }
 
@@ -366,7 +415,6 @@ fun AddDestinationScreen(
                 }
             }
         ) {
-
             DatePicker(
                 state = datePickerState
             )

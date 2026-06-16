@@ -31,4 +31,10 @@ suspend fun insert(destination: Destination) {
         destinationDao.delete(destination)
     }
 
+    suspend fun updateDestination(
+        destination: Destination
+    ) {
+        destinationDao.update(destination)
+    }
+
 }

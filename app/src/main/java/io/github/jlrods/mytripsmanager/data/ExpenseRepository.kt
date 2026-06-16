@@ -42,22 +42,23 @@ class ExpenseRepository(
         )
     }
 
+    suspend fun update(
+        expense: Expense
+    ){
+        expenseDao.update(expense)
+    }
     fun updateTripTotalCost(
         tripId: Int
     ) {
-
-        val expenses =
-            expenseDao.getExpensesByTrip(tripId)
-
+        val expenses = expenseDao.getExpensesByTrip(tripId)
     }
 
     fun getExpensesByTrip(
         tripId: Int
     ): Flow<List<Expense>> {
-
         return expenseDao.getExpensesByTrip(tripId)
-
     }
+
     fun getExpensesForTrip(tripId: Int) =
         expenseDao.getExpensesByTrip(tripId)
 

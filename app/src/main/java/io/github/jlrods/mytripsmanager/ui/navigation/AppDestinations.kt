@@ -21,5 +21,8 @@ enum class AppDestinations(
     EDIT_PROVIDER(label = "Edit Provider",icon = R.drawable.ic_provider,showInBottomNav = false),
 
     ADD_DESTINATION(label = "Add Destination",icon = R.drawable.ic_destination,showInBottomNav = false),
+    EDIT_DESTINATION(label = "Edit Destination",icon = R.drawable.ic_destination,showInBottomNav = false),
     ADD_EXPENSE(label = "Add Expense",icon = R.drawable.ic_expense,showInBottomNav = false),
+    EDIT_EXPENSE(label = "Edit Expense",icon = R.drawable.ic_expense,showInBottomNav = false),
+
 }

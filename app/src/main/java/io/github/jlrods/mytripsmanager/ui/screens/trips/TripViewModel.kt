@@ -159,6 +159,20 @@ class TripsViewModel(
         }
     }
 
+    fun updateDestination(
+        destination: Destination,
+        onSuccess: () -> Unit
+    ) {
+
+        viewModelScope.launch {
+
+            destinationRepository.updateDestination(destination)
+
+            onSuccess()
+
+        }
+    }
+
     fun deleteDestination(destination: Destination) {
         viewModelScope.launch {
             destinationRepository.delete(destination)
