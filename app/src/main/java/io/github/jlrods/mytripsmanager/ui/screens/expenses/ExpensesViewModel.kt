@@ -14,27 +14,11 @@ class ExpensesViewModel(
 ) : ViewModel() {
 
     fun insertExpense(
-        name: String,
-        tripId: Int,
-        typeId: Int,
-        providerId: Int,
-        date: Long,
-        cost: Double,
+        expense: Expense,
         onSuccess: () -> Unit
     ) {
-
         viewModelScope.launch {
-
-            repository.insert(
-                Expense(
-                    name = name,
-                    tripId = tripId,
-                    typeId = typeId,
-                    providerId = providerId,
-                    date = date,
-                    cost = cost
-                )
-            )
+            repository.insert(expense)
             onSuccess()
         }
     }

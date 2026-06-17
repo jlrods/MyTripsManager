@@ -15,20 +15,36 @@ class ExpenseRepository(
 
     suspend fun insert(expense: Expense) {
         expenseDao.insert(expense)
-        val total =  expenseDao.getTotalCostForTrip(expense.tripId)
-        tripDao.updateTotalCost(expense.tripId, totalCost = total)
+        updateTotaCost(expense.tripId)
+        if (expense.isCash) {
+            updateCashSpent(expense.tripId)
+        }
     }
 
     suspend fun delete(expense: Expense) {
         expenseDao.delete(expense)
-        val total = expenseDao.getTotalCostForTrip(expense.tripId)
-        tripDao.updateTotalCost(expense.tripId, totalCost = total)
+        updateTotaCost(expense.tripId)
+        if (expense.isCash) {
+            updateCashSpent(expense.tripId)
+        }
     }
 
     suspend fun update(expense: Expense){
         expenseDao.update(expense)
-        val total = expenseDao.getTotalCostForTrip(expense.tripId)
-        tripDao.updateTotalCost(expense.tripId, totalCost = total)
+        updateTotaCost(expense.tripId)
+        if (expense.isCash) {
+            updateCashSpent(expense.tripId)
+        }
+    }
+
+    private suspend fun updateTotaCost(tripId: Int) {
+        val total = expenseDao.getTotalCostForTrip(tripId)
+        tripDao.updateTotalCost(tripId, totalCost = total)
+    }
+
+    private suspend fun updateCashSpent(tripId: Int) {
+        val cashSpent = expenseDao.getCashSpentForTrip(tripId)
+        tripDao.updateCashSpent(tripId, cashSpent = cashSpent)
     }
 
     fun getExpensesByTrip(

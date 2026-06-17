@@ -41,6 +41,8 @@ fun ExpenseFormScreen(
     var showProviderDialog by rememberSaveable { mutableStateOf(false) }
     var showTypeDialog by rememberSaveable { mutableStateOf(false) }
 
+    var isCash by rememberSaveable { mutableStateOf(false) }
+
     LaunchedEffect(expenseToEdit, providers, expenseTypes) {
 
         expenseToEdit?.let { expense ->
@@ -61,6 +63,7 @@ fun ExpenseFormScreen(
                 expenseTypes.firstOrNull {
                     it.id == expense.typeId
                 }
+            isCash = expense.isCash
         }
     }
 
@@ -92,6 +95,20 @@ fun ExpenseFormScreen(
             label = { Text("Cost") },
             modifier = Modifier.fillMaxWidth()
         )
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Text("Paid with cash?")
+
+            Spacer(Modifier.width(12.dp))
+
+            Switch(
+                checked = isCash,
+                onCheckedChange = { isCash = it }
+            )
+        }
 
         // EXPENSE TYPE
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -155,18 +172,21 @@ fun ExpenseFormScreen(
                 if(expenseToEdit == null) {
 
                     viewModel.insertExpense(
+                        Expense(
+                            name = name,
 
-                        name = name,
+                            tripId = trip.id,
 
-                        tripId = trip.id,
+                            typeId = selectedType!!.id,
 
-                        typeId = selectedType!!.id,
+                            providerId = selectedProvider!!.id,
 
-                        providerId = selectedProvider!!.id,
+                            date = System.currentTimeMillis(),
 
-                        date = System.currentTimeMillis(),
+                            cost = cost.toDouble(),
 
-                        cost = cost.toDouble()
+                            isCash = isCash
+                        )
 
                     ) {
                         onSave()
@@ -187,7 +207,9 @@ fun ExpenseFormScreen(
 
 //                            date = selectedDate,
 
-                            cost = cost.toDouble()
+                            cost = cost.toDouble(),
+
+                            isCash = isCash
                         )
                     ) {
                         onSave()

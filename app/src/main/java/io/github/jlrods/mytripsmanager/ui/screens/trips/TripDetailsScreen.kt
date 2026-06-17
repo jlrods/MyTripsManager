@@ -322,6 +322,11 @@ fun TripDetailScreen(
                     )
 
                     TripInfoRow(
+                        label = "Cash Remaining",
+                        value = "€%.2f".format(trip.cashBudget - trip.cashSpent)
+                    )
+
+                    TripInfoRow(
                         label = "Total Cost",
                         value = "€%.2f".format(trip.totalCost)
                     )

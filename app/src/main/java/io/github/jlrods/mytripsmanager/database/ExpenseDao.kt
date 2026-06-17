@@ -46,6 +46,15 @@ interface ExpenseDao {
         tripId: Int
     ): Double
 
+    @Query("""
+    SELECT COALESCE(SUM(cost),0)
+    FROM expenses
+    WHERE tripId = :tripId AND isCash = 1
+""")
+    suspend fun getCashSpentForTrip(
+        tripId: Int
+    ): Double
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(expense: Expense)
 
