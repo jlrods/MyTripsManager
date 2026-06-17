@@ -2,7 +2,6 @@ package io.github.jlrods.mytripsmanager.ui.screens.trips
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,6 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
@@ -85,13 +85,18 @@ fun TripDetailScreen(
         mutableStateOf(0L)
     }
 
+    var startDateDraft by rememberSaveable { mutableStateOf(0L) }
+
     var endDate by rememberSaveable {
         mutableStateOf(0L)
     }
 
+    var endDateDraft by rememberSaveable { mutableStateOf(0L) }
+
     var cashBudget by rememberSaveable {
         mutableStateOf("")
     }
+
 
     LaunchedEffect(tripToEdit?.id) {
 
@@ -101,15 +106,21 @@ fun TripDetailScreen(
 
             startDate = it.start
 
+            startDateDraft = it.start
+
             endDate = it.end
+
+            endDateDraft = it.end
 
             cashBudget =
                 it.cashBudget.toString()
         }
     }
-    var isEditingName by rememberSaveable {
-        mutableStateOf(false)
-    }
+
+    var isEditingName by rememberSaveable {mutableStateOf(false)}
+
+    var isEditingBudget by rememberSaveable {mutableStateOf(false)}
+
 
     val destinations by viewModel.tripDestinations.collectAsState()
     LaunchedEffect(tripToEdit?.id) {
@@ -218,8 +229,14 @@ fun TripDetailScreen(
                             ) {
 
                                 Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = "Edit Trip Name"
+                                    imageVector = if (isEditingName)
+                                        Icons.Default.Check
+                                    else
+                                        Icons.Default.Edit,
+                                    contentDescription = if (isEditingName)
+                                        "Save Trip Name"
+                                    else
+                                        "Edit Trip Name"
                                 )
                             }
 
@@ -242,79 +259,115 @@ fun TripDetailScreen(
 
                     Spacer(Modifier.height(16.dp))
 
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        Text(
+                            text = formatDate(startDate),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+
+                        IconButton(
+                            onClick = {
+                                startDateDraft = startDate
                                 showStartDatePicker = true
                             }
-                    ) {
-
-                        OutlinedTextField(
-
-                            value = formatDate(startDate),
-
-                            onValueChange = {},
-
-                            readOnly = true,
-
-                            enabled = false,
-
-                            label = {
-                                Text("Start Date")
-                            },
-
-                            modifier = Modifier.fillMaxWidth()
-
-                        )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit start date"
+                            )
+                        }
                     }
 
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        Text(
+                            text = formatDate(endDate),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+
+                        IconButton(
+                            onClick = {
+                                endDateDraft = endDate
                                 showEndDatePicker = true
                             }
-                    ) {
-
-                        OutlinedTextField(
-
-                            value = formatDate(endDate),
-
-                            onValueChange = {},
-
-                            readOnly = true,
-
-                            enabled = false,
-
-                            label = {
-                                Text("End Date")
-                            },
-
-                            modifier = Modifier.fillMaxWidth()
-
-                        )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit end date"
+                            )
+                        }
                     }
 
-                    OutlinedTextField(
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
 
-                        value = cashBudget,
+                        if (isEditingBudget) {
 
-                        onValueChange = {
-                            cashBudget = it
-                        },
+                            OutlinedTextField(
+                                value = cashBudget,
+                                onValueChange = {
+                                    cashBudget = it
+                                },
+                                label = { Text("Cash Budget") },
+                                prefix = { Text("€") },
+                                modifier = Modifier.weight(1f)
+                            )
 
-                        label = {
-                            Text("Cash Budget")
-                        },
+                        } else {
 
-                        prefix = {
-                            Text("€")
-                        },
+                            Text(
+                                text = "€${cashBudget}",
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
 
-                        modifier = Modifier.fillMaxWidth()
+                        IconButton(
+                            onClick = {
 
-                    )
+                                if (isEditingBudget) {
+
+                                    val budgetValue = cashBudget.toDoubleOrNull() ?: 0.0
+
+                                    viewModel.updateTrip(
+                                        trip.copy(cashBudget = budgetValue)
+                                    )
+
+                                    isEditingBudget = false
+
+                                } else {
+
+                                    isEditingBudget = true
+                                }
+                            }
+                        ) {
+
+                            Icon(
+                                imageVector =
+                                    if (isEditingBudget)
+                                        Icons.Default.Check
+                                    else
+                                        Icons.Default.Edit,
+                                contentDescription =
+                                    if (isEditingBudget)
+                                        "Save Budget"
+                                    else
+                                        "Edit Budget"
+                            )
+                        }
+                    }
 
                     TripInfoRow(
                         label = "Cash Spent",
@@ -617,44 +670,6 @@ fun TripDetailScreen(
                         }
 
                     }
-
-                    Spacer(Modifier.height(96.dp))
-                    Button(
-
-                        onClick = {
-
-                            val budget =
-                                cashBudget.toDoubleOrNull()
-                                    ?: 0.0
-
-
-                            viewModel.updateTrip(
-
-                                trip.copy(
-
-                                    name = tripName,
-
-                                    start = startDate,
-
-                                    end = endDate,
-
-                                    cashBudget = budget
-                                )
-
-                            )
-
-
-                            onSave()
-
-                        },
-
-                        modifier = Modifier.fillMaxWidth()
-
-                    ) {
-
-                        Text("Save Trip Changes")
-
-                    }
                 }
 
             } ?: Box(
@@ -700,13 +715,21 @@ fun TripDetailScreen(
                     TextButton(
                         onClick = {
 
-                            startDate =
-                                datePickerState.selectedDateMillis
-                                    ?: startDate
+                            val selected = datePickerState.selectedDateMillis
 
+                            if (selected != null) {
+
+                                startDateDraft = selected
+
+                                startDate = selected
+
+                                viewModel.updateTrip(
+                                    tripToEdit!!.copy(start = selected)
+                                )
+                            }
                             showStartDatePicker = false
                         }
-                    ) {
+                    )  {
                         Text("OK")
                     }
                 },
@@ -714,6 +737,7 @@ fun TripDetailScreen(
 
                     TextButton(
                         onClick = {
+
                             showStartDatePicker = false
                         }
                     ) {
@@ -739,17 +763,25 @@ fun TripDetailScreen(
                     showEndDatePicker = false
                 },
                 confirmButton = {
-
                     TextButton(
                         onClick = {
 
-                            endDate =
-                                datePickerState.selectedDateMillis
-                                    ?: endDate
+                            val selected = datePickerState.selectedDateMillis
 
+                            if (selected != null) {
+
+                                endDateDraft = selected
+
+                                endDate = selected
+
+                                viewModel.updateTrip(
+                                    tripToEdit!!.copy(end = selected)
+                                )
+                            }
                             showEndDatePicker = false
                         }
-                    ) {
+                    )
+                    {
                         Text("OK")
                     }
                 },
