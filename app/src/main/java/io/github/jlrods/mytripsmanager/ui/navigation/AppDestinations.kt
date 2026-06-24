@@ -8,20 +8,21 @@ enum class AppDestinations(
     val showInBottomNav: Boolean = true
 ) {
     TRIPS("Trips", icon = (R.drawable.ic_trip),true),
-
     ADD_TRIP(label = "Add Trip", icon = R.drawable.ic_trip, showInBottomNav = false),
+    EDIT_TRIP(label = "Edit Trip",icon = R.drawable.ic_trip, showInBottomNav = false),
 
-    TRIP_DETAILS(label = "Trip Details",icon = R.drawable.ic_trip, showInBottomNav = false),
 
     CITIES("Cities", R.drawable.ic_city,true),
     PROVIDERS("Providers", R.drawable.ic_provider,true),
     ADD_CITY("Add City", R.drawable.ic_city,false),
-
     EDIT_CITY("Edit City", R.drawable.ic_city,false),
 
     ADD_PROVIDER(label = "Add Provider",icon = R.drawable.ic_provider,showInBottomNav = false),
+    EDIT_PROVIDER(label = "Edit Provider",icon = R.drawable.ic_provider,showInBottomNav = false),
 
-    EDIT_PROVIDER(label = "Edit Provider",icon = R.drawable.ic_provider,showInBottomNav = false)
-
+    ADD_DESTINATION(label = "Add Destination",icon = R.drawable.ic_destination,showInBottomNav = false),
+    EDIT_DESTINATION(label = "Edit Destination",icon = R.drawable.ic_destination,showInBottomNav = false),
+    ADD_EXPENSE(label = "Add Expense",icon = R.drawable.ic_expense,showInBottomNav = false),
+    EDIT_EXPENSE(label = "Edit Expense",icon = R.drawable.ic_expense,showInBottomNav = false),
 
 }

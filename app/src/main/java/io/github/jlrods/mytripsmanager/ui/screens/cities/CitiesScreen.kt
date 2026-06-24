@@ -127,7 +127,6 @@ fun CitiesScreen(
 
         }
     }
-
 }
 
 @Composable

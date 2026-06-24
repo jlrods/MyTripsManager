@@ -233,18 +233,18 @@ object InitialData {
 
     fun getExpenseTypes(): List<ExpenseType> {
         return listOf(
-            ExpenseType(name = "Accommodation", logo = "ic_accommodation"),
-            ExpenseType(name = "Airline Tickets", logo = "ic_airline_tickets"),
-            ExpenseType(name = "Food", logo = "ic_food"),
-            ExpenseType(name = "Transport", logo = "ic_transport"),
-            ExpenseType(name = "Leisure", logo = "ic_leisure"),
-            ExpenseType(name = "Insurance", logo = "ic_insurance"),
-            ExpenseType(name = "Health", logo = "ic_health"),
-            ExpenseType(name = "Parking", logo = "ic_parking"),
-            ExpenseType(name = "Drinks", logo = "ic_drinks"),
-            ExpenseType(name = "Others", logo = "ic_others"),
-            ExpenseType(name = "Souvenirs", logo = "ic_souvenirs"),
-            ExpenseType(name = "Tolls", logo = "ic_tolls")
+            ExpenseType(name = "Accommodation", iconRes = R.drawable.ic_accommodation),
+            ExpenseType(name = "Airline Tickets", iconRes = R.drawable.ic_airline_tickets),
+            ExpenseType(name = "Food", iconRes = R.drawable.ic_food),
+            ExpenseType(name = "Transport", iconRes = R.drawable.ic_transport),
+            ExpenseType(name = "Leisure", iconRes = R.drawable.ic_leisure),
+            ExpenseType(name = "Insurance", iconRes = R.drawable.ic_insurance),
+            ExpenseType(name = "Health", iconRes = R.drawable.ic_health),
+            ExpenseType(name = "Parking", iconRes = R.drawable.ic_parking),
+            ExpenseType(name = "Drinks", iconRes = R.drawable.ic_drinks),
+            ExpenseType(name = "Others", iconRes = R.drawable.ic_others),
+            ExpenseType(name = "Souvenirs", iconRes = R.drawable.ic_souvenirs),
+            ExpenseType(name = "Tolls", iconRes = R.drawable.ic_tolls)
         )
     }
 

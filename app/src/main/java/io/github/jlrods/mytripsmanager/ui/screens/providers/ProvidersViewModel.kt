@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.jlrods.mytripsmanager.data.ProviderRepository
 import io.github.jlrods.mytripsmanager.database.Provider
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -81,6 +82,11 @@ class ProvidersViewModel(
                 file.delete()
             }
         }
+    }
+
+
+    fun getAllProviders(): Flow<List<Provider>> {
+        return repository.getAllProviders()
     }
 
 }

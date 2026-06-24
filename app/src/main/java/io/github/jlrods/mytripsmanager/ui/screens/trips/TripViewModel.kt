@@ -5,10 +5,13 @@ import androidx.lifecycle.viewModelScope
 import io.github.jlrods.mytripsmanager.data.DestinationRepository
 import io.github.jlrods.mytripsmanager.data.TripRepository
 import io.github.jlrods.mytripsmanager.database.Destination
+import io.github.jlrods.mytripsmanager.database.DestinationWithCityAndCountry
 import io.github.jlrods.mytripsmanager.database.Trip
 import io.github.jlrods.mytripsmanager.database.TripListItem
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -23,6 +26,10 @@ class TripsViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
+    private val _tripDestinations =
+        MutableStateFlow<List<DestinationWithCityAndCountry>>(emptyList())
+
+    val tripDestinations = _tripDestinations.asStateFlow()
 
     fun insertTrip(
         name: String,
@@ -49,6 +56,40 @@ class TripsViewModel(
             )
 
             onSuccess(id)
+        }
+    }
+
+    fun getTripById(id: Int) =
+        repository.getTripById(id)
+
+    fun loadDestinationsForTrip(tripId: Int) {
+
+        viewModelScope.launch {
+
+            repository
+                .getDestinationsForTrip(tripId)
+                .collect {
+                    _tripDestinations.value = it
+                }
+        }
+    }
+
+    fun insertDestination(
+        tripId: Int,
+        cityId: Int,
+        start: Long,
+        end: Long,
+        onSuccess: () -> Unit
+    ) {
+
+        viewModelScope.launch {
+            destinationRepository.insert(Destination(
+                tripId = tripId,
+                cityId = cityId,
+                start = start,
+                end = end
+            ))
+            onSuccess()
         }
     }
 
@@ -91,17 +132,50 @@ class TripsViewModel(
 
             if (tripId > 0) {
 
-                destinationRepository.insert(
-                    Destination(
+                insertDestination(
                         tripId = tripId.toInt(),
                         cityId = cityId,
                         start = startDate,
-                        end = endDate
-                    )
+                        end = endDate,
+                        onSuccess = {onSuccess()}
                 )
-
-                onSuccess()
             }
+        }
+    }
+
+    fun deleteTrip(trip: Trip) {
+
+        viewModelScope.launch {
+
+            repository.delete(trip)
+        }
+    }
+
+    fun updateTrip(trip: Trip) {
+
+        viewModelScope.launch {
+
+            repository.update(trip)
+        }
+    }
+
+    fun updateDestination(
+        destination: Destination,
+        onSuccess: () -> Unit
+    ) {
+
+        viewModelScope.launch {
+
+            destinationRepository.updateDestination(destination)
+
+            onSuccess()
+
+        }
+    }
+
+    fun deleteDestination(destination: Destination) {
+        viewModelScope.launch {
+            destinationRepository.delete(destination)
         }
     }
 }

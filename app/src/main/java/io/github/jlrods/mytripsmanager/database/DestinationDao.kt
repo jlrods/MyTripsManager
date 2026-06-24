@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
@@ -19,6 +20,16 @@ interface DestinationDao {
     @Query("SELECT * FROM destinations WHERE tripId = :tripId ORDER BY start ASC")
     fun getDestinationsByTrip(tripId: Int): Flow<List<Destination>>
 
+    @Transaction
+    @Query("""
+    SELECT * FROM destinations
+    WHERE tripId = :tripId
+    ORDER BY start ASC
+    """)
+    fun getDestinationsForTrip(
+        tripId: Int
+    ): Flow<List<DestinationWithCityAndCountry>>
+
     @Query("SELECT * FROM destinations WHERE cityId = :cityId ORDER BY start ASC")
     fun getDestinationsByCity(cityId: Int): Flow<List<Destination>>
 
@@ -32,6 +43,28 @@ interface DestinationDao {
 
     @Query("SELECT * FROM destinations WHERE start BETWEEN :startDate AND :endDate ORDER BY start ASC")
     fun getDestinationsInDateRange(startDate: Long, endDate: Long): Flow<List<Destination>>
+
+    @Query("""
+    SELECT * FROM destinations
+    WHERE tripId = :tripId
+    AND start < :newStart
+    ORDER BY start DESC
+    LIMIT 1
+""")
+    suspend fun getPreviousDestination(
+        tripId: Int,
+        newStart: Long
+    ): Destination?
+
+    @Query("""
+    SELECT * FROM destinations
+    WHERE tripId = :tripId
+    ORDER BY start DESC
+    LIMIT 1
+""")
+    suspend fun getLastDestination(
+        tripId: Int
+    ): Destination?
 
     @Query("SELECT COUNT(*) FROM destinations")
     suspend fun count(): Int

@@ -19,6 +19,10 @@ class ProviderRepository(
         return providerDao.existsDuplicateForUpdate(name,id) > 0
     }
 
+    fun getAllProviders(): Flow<List<Provider>> {
+        return providerDao.getAllProviders()
+    }
+
 
     suspend fun insert(provider: Provider) =
         providerDao.insert(provider)

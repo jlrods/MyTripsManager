@@ -1,6 +1,5 @@
 package io.github.jlrods.mytripsmanager.ui.screens.providers
 
-import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -51,7 +50,6 @@ import io.github.jlrods.mytripsmanager.R
 import io.github.jlrods.mytripsmanager.database.Provider
 import io.github.jlrods.mytripsmanager.utils.ImageStorage
 import java.io.File
-import androidx.compose.foundation.layout.ColumnScope
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

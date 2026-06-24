@@ -74,6 +74,26 @@ interface TripDao {
 """)
     fun getTripListItems(): Flow<List<TripListItem>>
 
+    @Query("""
+    UPDATE trips 
+    SET totalCost = :totalCost
+    WHERE id = :tripId
+""")
+    suspend fun updateTotalCost(
+        tripId: Int,
+        totalCost: Double
+    )
+
+    @Query("""
+    UPDATE trips 
+    SET cashSpent = :cashSpent
+    WHERE id = :tripId
+""")
+    suspend fun updateCashSpent(
+        tripId: Int,
+        cashSpent: Double
+    )
+
     @Query("SELECT * FROM trips WHERE cashSpent > cashBudget ORDER BY name ASC")
     fun getTripsWithOverspentBudget(): Flow<List<Trip>>
 
@@ -82,6 +102,9 @@ interface TripDao {
 
     @Query("SELECT COUNT(*) FROM trips")
     suspend fun count(): Int
+
+    @Query("SELECT * FROM trips WHERE id = :id")
+    fun getTripById(id: Int): Flow<Trip?>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(trip: Trip): Long

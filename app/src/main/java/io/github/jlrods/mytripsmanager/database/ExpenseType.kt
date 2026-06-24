@@ -8,5 +8,5 @@ data class ExpenseType(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val name: String,
-    val logo: String
+    val iconRes: Int
 )

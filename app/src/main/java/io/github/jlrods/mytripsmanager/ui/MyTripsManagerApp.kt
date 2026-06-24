@@ -1,5 +1,7 @@
 package io.github.jlrods.mytripsmanager.ui
 
+import ExpensesViewModelFactory
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -16,7 +18,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import io.github.jlrods.mytripsmanager.MainScreen
 import io.github.jlrods.mytripsmanager.ui.components.MyTripsManagerTopAppBar
 import io.github.jlrods.mytripsmanager.ui.navigation.AppDestinations
 import androidx.compose.ui.platform.LocalContext
@@ -24,14 +25,19 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.jlrods.mytripsmanager.database.MyTripsManagerDb
 import io.github.jlrods.mytripsmanager.data.CityRepository
 import io.github.jlrods.mytripsmanager.data.DestinationRepository
+import io.github.jlrods.mytripsmanager.data.ExpenseRepository
 import io.github.jlrods.mytripsmanager.data.ProviderRepository
 import io.github.jlrods.mytripsmanager.data.TripRepository
+import io.github.jlrods.mytripsmanager.database.Destination
+import io.github.jlrods.mytripsmanager.database.Expense
 import io.github.jlrods.mytripsmanager.database.Provider
-import io.github.jlrods.mytripsmanager.database.Trip
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModel
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModelFactory
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesScreen
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CityFormScreen
+import io.github.jlrods.mytripsmanager.ui.screens.destinations.AddDestinationScreen
+import io.github.jlrods.mytripsmanager.ui.screens.expenses.ExpenseFormScreen
+import io.github.jlrods.mytripsmanager.ui.screens.expenses.ExpensesViewModel
 import io.github.jlrods.mytripsmanager.ui.screens.providers.ProviderFormScreen
 import io.github.jlrods.mytripsmanager.ui.screens.providers.ProvidersScreen
 import io.github.jlrods.mytripsmanager.ui.screens.providers.ProvidersViewModel
@@ -63,13 +69,25 @@ fun MyTripsManagerApp() {
     var selectedProvider by remember { mutableStateOf<Provider?>(null) }
 
     //Trips screen initialization
-    var selectedTrip by remember { mutableStateOf<Trip?>(null) }
-    val tripRepository = TripRepository(database.tripDao())
+    var selectedTripId by rememberSaveable {
+        mutableStateOf<Int?>(null)
+    }
+
+    val tripRepository = TripRepository(database.tripDao(),database.destinationDao())
 
     val destinationRepository = DestinationRepository(database.destinationDao())
     val tripFactory = TripsViewModelFactory(tripRepository,destinationRepository)
     val tripsViewModel: TripsViewModel = viewModel(factory = tripFactory)
 
+    val expenseRepository = ExpenseRepository(database.expenseDao(), database.expenseTypeDao(), database.tripDao())
+    val expensesViewModelFactory = ExpensesViewModelFactory(expenseRepository)
+    val expensesViewModel: ExpensesViewModel = viewModel(factory = expensesViewModelFactory)
+
+    val tripToEdit by tripsViewModel.getTripById(selectedTripId ?: 0).collectAsState(initial = null)
+
+    var selectedDestinationToEdit by rememberSaveable {mutableStateOf<Destination?>(null)}
+
+    var selectedExpenseToEdit by rememberSaveable{mutableStateOf<Expense?>(null)}
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
@@ -100,10 +118,14 @@ fun MyTripsManagerApp() {
                     TripsScreen(
                         viewModel = tripsViewModel,
                         modifier = Modifier.padding(innerPadding),
+                        onTripClick = { tripID ->
+                            selectedTripId = tripID
+                            currentDestination = AppDestinations.EDIT_TRIP
+                        },
                         onAddTripClick = {
+                            selectedTripId = null
                             currentDestination = AppDestinations.ADD_TRIP
                         }
-
                     )
                 }
 
@@ -117,16 +139,141 @@ fun MyTripsManagerApp() {
                         }
                     )
                 }
-                AppDestinations.TRIP_DETAILS -> {
+                AppDestinations.EDIT_TRIP -> {
+                    val providers by providersViewModel
+                        .getAllProviders()
+                        .collectAsState(initial = emptyList())
+                    val expenseTypes by expensesViewModel
+                        .getAllExpenseTypes()
+                        .collectAsState(initial = emptyList())
+
                     TripDetailScreen(
-                        trip = selectedTrip,
-                        onBack = {
-                            currentDestination = AppDestinations.TRIPS
-                        }
+                        viewModel = tripsViewModel,
+                        citiesViewModel = citiesViewModel,
+                        expensesViewModel = expensesViewModel,
+                        providers = providers,
+                        expenseTypes = expenseTypes,
+                        modifier = Modifier.padding(innerPadding),
+                        tripToEdit = tripToEdit,
+                        onAddDestinationClick = {
+                            currentDestination = AppDestinations.ADD_DESTINATION
+                        },
+                        onAddExpenseClick = {
+                            currentDestination = AppDestinations.ADD_EXPENSE
+                        },
+                        onEditDestinationClick = { destination ->
+                            Log.d(
+                                "EDIT_DESTINATION_TEST",
+                                "Clicked: ${destination.id} ${destination.cityId}"
+                            )
+                            selectedDestinationToEdit = destination
+
+                            currentDestination =
+                                AppDestinations.EDIT_DESTINATION
+                        },
+                        onEditExpenseClick = { expense ->
+
+                            selectedExpenseToEdit = expense
+
+                            currentDestination =
+                                AppDestinations.EDIT_EXPENSE
+                        },
+                        onSave = {
+                                selectedTripId = null
+                                currentDestination = AppDestinations.TRIPS
+                            },
+
                     )
                 }
 
+                AppDestinations.ADD_DESTINATION -> {
+                    tripToEdit?.let { trip ->
 
+                        AddDestinationScreen(
+                            trip = trip,
+                            viewModel = tripsViewModel,
+                            citiesViewModel = citiesViewModel,
+                            modifier = Modifier.fillMaxSize()
+                                .padding(innerPadding),
+                            destinationToEdit = null,
+                            onSave = {
+                                currentDestination = AppDestinations.EDIT_TRIP
+                            }
+                        )
+                    }
+                }
+
+                AppDestinations.EDIT_DESTINATION -> {
+                    tripToEdit?.let { trip ->
+
+                        AddDestinationScreen(
+                            trip = trip,
+                            viewModel = tripsViewModel,
+                            citiesViewModel = citiesViewModel,
+                            modifier = Modifier.fillMaxSize()
+                                .padding(innerPadding),
+                            destinationToEdit = selectedDestinationToEdit,
+                            onSave = {
+                                selectedDestinationToEdit = null
+                                currentDestination =
+                                    AppDestinations.EDIT_TRIP
+                            }
+                        )
+                    }
+                }
+
+                AppDestinations.ADD_EXPENSE -> {
+                    val providers by providersViewModel
+                        .getAllProviders()
+                        .collectAsState(initial = emptyList())
+
+                    val expenseTypes by expensesViewModel
+                        .getAllExpenseTypes()
+                        .collectAsState(initial = emptyList())
+
+                    tripToEdit?.let { trip ->
+
+                        ExpenseFormScreen(
+                            trip = trip,
+                            viewModel = expensesViewModel,
+                            modifier = Modifier.fillMaxSize()
+                                .padding(innerPadding),
+                            providers = providers,
+                            expenseTypes = expenseTypes,
+                            onSave = {
+                                currentDestination = AppDestinations.EDIT_TRIP
+                            }
+                        )
+                    }
+                }
+                AppDestinations.EDIT_EXPENSE -> {
+
+                    val providers by providersViewModel
+                        .getAllProviders()
+                        .collectAsState(initial = emptyList())
+
+                    val expenseTypes by expensesViewModel
+                        .getAllExpenseTypes()
+                        .collectAsState(initial = emptyList())
+
+                    tripToEdit?.let { trip ->
+
+                        ExpenseFormScreen(
+                            trip = trip,
+                            viewModel = expensesViewModel,
+                            modifier = Modifier.fillMaxSize()
+                                .padding(innerPadding),
+                            providers = providers,
+                            expenseTypes = expenseTypes,
+                            expenseToEdit = selectedExpenseToEdit,
+                            onSave = {
+                                selectedExpenseToEdit = null
+                                currentDestination =
+                                    AppDestinations.EDIT_TRIP
+                            }
+                        )
+                    }
+                }
 
                 AppDestinations.CITIES -> {
                     CitiesScreen(
@@ -205,7 +352,6 @@ fun MyTripsManagerApp() {
                         }
                     )
                 }
-
             }
         }
     }
