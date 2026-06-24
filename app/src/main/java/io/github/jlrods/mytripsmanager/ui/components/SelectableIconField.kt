@@ -23,6 +23,8 @@ fun SelectableIconField(
 
     iconRes: Int?,
 
+    logoUri: String?,
+
     modifier: Modifier = Modifier,
 
     onClick: () -> Unit
@@ -59,24 +61,16 @@ fun SelectableIconField(
 
         ) {
 
-
-            if (iconRes != null) {
-
-                Image(
-
-                    painter = painterResource(id = iconRes),
-                    contentDescription = null,
-                    colorFilter = ColorFilter.tint(
-                        MaterialTheme.colorScheme.onSurface
-                    ),
-                    modifier = Modifier.size(28.dp)
+                ProviderLogo(
+                    logoRes = iconRes,
+                    logoUri = logoUri,
+                    modifier = Modifier.size(40.dp)
                 )
 
 
                 Spacer(
                     modifier = Modifier.width(12.dp)
                 )
-            }
 
 
             Text(

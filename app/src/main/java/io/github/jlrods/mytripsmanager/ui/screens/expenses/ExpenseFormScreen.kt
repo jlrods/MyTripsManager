@@ -122,6 +122,8 @@ fun ExpenseFormScreen(
 
                 iconRes = selectedType?.iconRes,
 
+                logoUri = selectedProvider?.logoUri,
+
                 onClick = {
                     showTypeDialog = true
                 }
@@ -141,6 +143,8 @@ fun ExpenseFormScreen(
                     ?: "Select provider",
 
                 iconRes = selectedProvider?.logoRes,
+
+                logoUri = selectedProvider?.logoUri,
 
                 onClick = {
                     showProviderDialog = true
@@ -251,7 +255,7 @@ fun ExpenseFormScreen(
                             ProviderLogo(
                                 logoRes = provider.logoRes,
                                 logoUri = provider.logoUri,
-                                modifier = Modifier.size(28.dp)
+                                modifier = Modifier.size(40.dp)
                             )
 
                             Spacer(Modifier.width(12.dp))
