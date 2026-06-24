@@ -169,113 +169,112 @@ fun TripDetailScreen(
                         .verticalScroll(rememberScrollState())
                         .padding(16.dp)
                 ) {
+                    Text(
+                        text = "Trip Name",
+                        style = MaterialTheme.typography.labelMedium
+                    )
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
+                        if (isEditingName) {
 
-                            verticalAlignment = Alignment.CenterVertically,
+                            OutlinedTextField(
+                                value = tripName,
+                                onValueChange = {
+                                    tripName = it
+                                },
+                                modifier = Modifier.weight(1f),
+                                singleLine = true
+                            )
 
-                            horizontalArrangement = Arrangement.SpaceBetween
+                        } else {
 
-                        ) {
-                            if (isEditingName) {
+                            Text(
+                                text = tripName,
+                                style = MaterialTheme.typography.titleLarge,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
 
-                                OutlinedTextField(
 
-                                    value = tripName,
+                        IconButton(
+                            onClick = {
 
-                                    onValueChange = {
-                                        tripName = it
-                                    },
+                                if (isEditingName) {
 
-                                    label = {
-                                        Text("Trip Name")
-                                    },
+                                    viewModel.updateTrip(
+                                        trip.copy(
+                                            name = tripName
+                                        )
+                                    )
 
-                                    modifier = Modifier.weight(1f)
+                                    isEditingName = false
 
-                                )
-                            } else {
+                                } else {
 
-                                Text(
+                                    isEditingName = true
+                                }
 
-                                    text = tripName,
-
-                                    style = MaterialTheme.typography.titleLarge,
-
-                                    modifier = Modifier.weight(1f)
-                                )
                             }
+                        ) {
+
+                            Icon(
+                                imageVector =
+                                    if (isEditingName)
+                                        Icons.Default.Check
+                                    else
+                                        Icons.Default.Edit,
+
+                                contentDescription = null
+                            )
+                        }
+
+
+                        if (!isEditingName) {
 
                             IconButton(
-
                                 onClick = {
-
-                                    if (isEditingName) {
-                                        viewModel.updateTrip(trip.copy(name = tripName))
-                                        isEditingName = false
-
-                                    } else {
-
-                                        isEditingName = true
-                                    }
+                                    showDeleteDialog = true
                                 }
                             ) {
 
                                 Icon(
-                                    imageVector = if (isEditingName)
-                                        Icons.Default.Check
-                                    else
-                                        Icons.Default.Edit,
-                                    contentDescription = if (isEditingName)
-                                        "Save Trip Name"
-                                    else
-                                        "Edit Trip Name"
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete Trip"
                                 )
-                            }
-
-                            if (!isEditingName) {
-
-                                IconButton(
-                                    onClick = {
-                                        showDeleteDialog = true
-                                    }
-                                ) {
-
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = "Delete Trip"
-                                    )
-                                }
                             }
                         }
                     }
 
                     Spacer(Modifier.height(16.dp))
 
+                    Text(
+                        text = "Start Date",
+                        style = MaterialTheme.typography.labelMedium
+                    )
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
 
                         Text(
-                            text = formatDate(startDate),
-                            style = MaterialTheme.typography.bodyLarge
+                            text = formatDate(trip.start),
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(1f)
                         )
 
                         IconButton(
                             onClick = {
-                                startDateDraft = startDate
+
                                 showStartDatePicker = true
+
                             }
                         ) {
+
                             Icon(
                                 imageVector = Icons.Default.Edit,
                                 contentDescription = "Edit start date"
@@ -283,23 +282,31 @@ fun TripDetailScreen(
                         }
                     }
 
+                    Text(
+                        text = "End Date",
+                        style = MaterialTheme.typography.labelMedium
+                    )
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
 
                         Text(
-                            text = formatDate(endDate),
-                            style = MaterialTheme.typography.bodyLarge
+                            text = formatDate(trip.end),
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(1f)
                         )
+
 
                         IconButton(
                             onClick = {
-                                endDateDraft = endDate
+
                                 showEndDatePicker = true
+
                             }
                         ) {
+
                             Icon(
                                 imageVector = Icons.Default.Edit,
                                 contentDescription = "Edit end date"
@@ -307,9 +314,13 @@ fun TripDetailScreen(
                         }
                     }
 
+                    Text(
+                        text = "Cash Budget",
+                        style = MaterialTheme.typography.labelMedium
+                    )
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
 
@@ -320,37 +331,51 @@ fun TripDetailScreen(
                                 onValueChange = {
                                     cashBudget = it
                                 },
-                                label = { Text("Cash Budget") },
-                                prefix = { Text("€") },
-                                modifier = Modifier.weight(1f)
+                                prefix = {
+                                    Text("€")
+                                },
+                                modifier = Modifier.weight(1f),
+                                singleLine = true
                             )
 
                         } else {
 
                             Text(
-                                text = "€${cashBudget}",
+                                text = "€%.2f".format(trip.cashBudget),
                                 style = MaterialTheme.typography.bodyLarge,
                                 modifier = Modifier.weight(1f)
                             )
                         }
+
 
                         IconButton(
                             onClick = {
 
                                 if (isEditingBudget) {
 
-                                    val budgetValue = cashBudget.toDoubleOrNull() ?: 0.0
+                                    val budget =
+                                        cashBudget.toDoubleOrNull()
+                                            ?: trip.cashBudget
+
 
                                     viewModel.updateTrip(
-                                        trip.copy(cashBudget = budgetValue)
+                                        trip.copy(
+                                            cashBudget = budget
+                                        )
                                     )
+
 
                                     isEditingBudget = false
 
+
                                 } else {
+
+                                    cashBudget =
+                                        trip.cashBudget.toString()
 
                                     isEditingBudget = true
                                 }
+
                             }
                         ) {
 
@@ -360,29 +385,79 @@ fun TripDetailScreen(
                                         Icons.Default.Check
                                     else
                                         Icons.Default.Edit,
-                                contentDescription =
-                                    if (isEditingBudget)
-                                        "Save Budget"
-                                    else
-                                        "Edit Budget"
+
+                                contentDescription = "Edit cash budget"
                             )
                         }
                     }
 
-                    TripInfoRow(
-                        label = "Cash Spent",
-                        value = "€%.2f".format(trip.cashSpent)
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
 
-                    TripInfoRow(
-                        label = "Cash Remaining",
-                        value = "€%.2f".format(trip.cashBudget - trip.cashSpent)
-                    )
+                        Box(
+                            modifier = Modifier.weight(1f),
+                            contentAlignment = Alignment.CenterStart
+                        ) {
+                            TripInfoRow(
+                                label = "Cash Spent",
+                                value = "€%.2f".format(trip.cashSpent)
+                            )
+                        }
 
-                    TripInfoRow(
-                        label = "Total Cost",
-                        value = "€%.2f".format(trip.totalCost)
-                    )
+
+                        Box(
+                            modifier = Modifier.weight(1f),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            TripInfoRow(
+                                label = "Cash Remaining",
+                                value = "€%.2f".format(
+                                    trip.cashBudget - trip.cashSpent
+                                )
+                            )
+                        }
+
+
+                        Box(
+                            modifier = Modifier.weight(1f),
+                            contentAlignment = Alignment.CenterEnd
+                        ) {
+                            TripInfoRow(
+                                label = "Total Cost",
+                                value = "€%.2f".format(trip.totalCost)
+                            )
+                        }
+                    }
+
+
+
+                    Spacer(Modifier.height(16.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+
+                        Button(
+                            onClick = onAddDestinationClick,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("+ Destination")
+                        }
+
+
+                        Button(
+                            onClick = onAddExpenseClick,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("+ Expense")
+                        }
+                    }
 
                     Spacer(Modifier.height(32.dp))
 
@@ -680,25 +755,6 @@ fun TripDetailScreen(
                 Text("Loading trip...")
             }
 
-        Column(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-        ) {
-
-            FloatingActionButton(
-                onClick = onAddDestinationClick
-            ) {
-                Text("D")
-            }
-
-            Spacer(Modifier.height(8.dp))
-
-            FloatingActionButton(
-                onClick = onAddExpenseClick
-            ) {
-                Text("E")
-            }
-        }
 
         if (showStartDatePicker) {
 
