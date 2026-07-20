@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.room.Delete
 import io.github.jlrods.mytripsmanager.database.*
 import io.github.jlrods.mytripsmanager.ui.components.ProviderLogo
 import io.github.jlrods.mytripsmanager.ui.components.SelectableIconField
@@ -230,44 +231,17 @@ fun ExpenseFormScreen(
             )
         }
     }
-
-    // ---------------- PROVIDER DIALOG ----------------
+    
     if (showProviderDialog) {
-
-        AlertDialog(
-            onDismissRequest = { showProviderDialog = false },
-            title = { Text("Select Provider") },
-            confirmButton = {},
-            text = {
-                LazyColumn {
-                    items(providers) { provider ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    selectedProvider = provider
-                                    showProviderDialog = false
-                                }
-                                .padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-
-                            ProviderLogo(
-                                logoRes = provider.logoRes,
-                                logoUri = provider.logoUri,
-                                modifier = Modifier.size(40.dp)
-                            )
-
-                            Spacer(Modifier.width(12.dp))
-
-                            Text(provider.name)
-                        }
-                    }
-                }
-            }
+        ProviderPickerDialog(
+            providers = providers,
+            onProviderSelected = {
+                selectedProvider = it
+                showProviderDialog = false
+            },
+            onDismiss = { showProviderDialog = false }
         )
     }
-
     // ---------------- TYPE DIALOG ----------------
     if (showTypeDialog) {
 
@@ -306,4 +280,69 @@ fun ExpenseFormScreen(
             }
         )
     }
+}
+
+@Composable
+fun ProviderPickerDialog(
+    providers: List<Provider>,
+    onProviderSelected: (Provider) -> Unit,
+    onDismiss: () -> Unit
+) {
+
+    var searchQuery by remember { mutableStateOf("") }
+
+    val filteredProviders = providers
+        .filter {
+            it.name.contains(searchQuery, ignoreCase = true)
+        }
+        .sortedBy { it.name }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {},
+        title = { Text("Select Provider") },
+        text = {
+
+            Column {
+
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    label = { Text("Search provider") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                LazyColumn {
+                    items(filteredProviders) { provider ->
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    onProviderSelected(provider)
+                                }
+                                .padding(vertical = 10.dp, horizontal = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            ProviderLogo(
+                                logoRes = provider.logoRes,
+                                logoUri = provider.logoUri,
+                                modifier = Modifier.size(32.dp)
+                            )
+
+                            Spacer(modifier = Modifier.width(12.dp))
+
+                            Text(
+                                text = provider.name,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    )
 }
