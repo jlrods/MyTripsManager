@@ -47,6 +47,7 @@ import io.github.jlrods.mytripsmanager.database.CityWithCountry
 import io.github.jlrods.mytripsmanager.database.Destination
 import io.github.jlrods.mytripsmanager.database.Trip
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModel
+import io.github.jlrods.mytripsmanager.ui.screens.trips.DestinationCityPickerDialog
 import io.github.jlrods.mytripsmanager.ui.screens.trips.TripsViewModel
 import io.github.jlrods.mytripsmanager.ui.screens.trips.formatDate
 
@@ -270,59 +271,14 @@ fun AddDestinationScreen(
 
     if (showCityDialog) {
 
-        AlertDialog(
-            onDismissRequest = {
+        DestinationCityPickerDialog(
+            cities = cities,
+            onCitySelected = {
+                selectedCity = it
                 showCityDialog = false
             },
-            confirmButton = {},
-            title = {
-                Text("Select Destination City")
-            },
-            text = {
-
-                LazyColumn {
-
-                    items(cities) { city ->
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-
-                                    selectedCity = city
-                                    showCityDialog = false
-                                }
-                                .padding(
-                                    vertical = 10.dp,
-                                    horizontal = 8.dp
-                                ),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-
-                            Image(
-                                painter = painterResource(
-                                    id = city.country.flagRes
-                                ),
-                                contentDescription = city.country.name,
-                                modifier = Modifier
-                                    .size(28.dp)
-                                    .clip(RoundedCornerShape(4.dp))
-                            )
-
-                            Spacer(
-                                modifier = Modifier.width(12.dp)
-                            )
-
-                            Text(
-                                text =
-                                    "${city.city.name.replaceFirstChar { it.uppercase() }} - ${
-                                        city.country.name.replaceFirstChar { it.uppercase() }
-                                    }",
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
-                    }
-                }
+            onDismiss = {
+                showCityDialog = false
             }
         )
     }

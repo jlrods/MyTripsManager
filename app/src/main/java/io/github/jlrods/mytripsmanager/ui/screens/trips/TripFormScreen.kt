@@ -46,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.Alignment
+import io.github.jlrods.mytripsmanager.ui.components.SearchablePickerDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -335,57 +336,6 @@ fun TripFormScreen(
             }
         )
     }
-//    if (showCityDialog) {
-//
-//        AlertDialog(
-//            onDismissRequest = { showCityDialog = false },
-//            confirmButton = {},
-//            title = { Text("Select Destination City") },
-//            text = {
-//
-//                Column {
-//
-//                    LazyColumn {
-//
-//                        items(cities) { city ->
-//
-//                            Row(
-//                                modifier = Modifier
-//                                    .fillMaxWidth()
-//                                    .clickable {
-//
-//                                        selectedCity = city
-//                                        showCityDialog = false
-//                                    }
-//                                    .padding(vertical = 10.dp, horizontal = 8.dp),
-//                                verticalAlignment = Alignment.CenterVertically
-//                            ) {
-//
-//                                Image(
-//                                    painter = painterResource(
-//                                        id = city.country.flagRes
-//                                    ),
-//                                    contentDescription = city.country.name,
-//                                    modifier = Modifier
-//                                        .size(28.dp)
-//                                        .clip(RoundedCornerShape(4.dp))
-//                                )
-//
-//                                Spacer(modifier = Modifier.width(12.dp))
-//
-//                                Text(
-//                                    text = "${city.city.name.trim().replaceFirstChar { it.uppercase() }} - ${
-//                                        city.country.name.trim().replaceFirstChar { it.uppercase() }
-//                                    }",
-//                                    style = MaterialTheme.typography.bodyLarge
-//                                )
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        )
-//    }
 }
 
 fun formatDate(timestamp: Long): String {
@@ -407,87 +357,42 @@ fun DestinationCityPickerDialog(
     onDismiss: () -> Unit
 ) {
 
-    var searchQuery by remember { mutableStateOf("") }
+    SearchablePickerDialog(
 
-    val filteredCities = cities
-        .filter {
+        title = "Select Destination City",
 
-            it.city.name.contains(searchQuery, ignoreCase = true) ||
-                    it.country.name.contains(searchQuery, ignoreCase = true)
+        items = cities.sortedWith(
+            compareBy(
+                { it.country.name },
+                { it.city.name }
+            )
+        ),
 
-        }
-        .sortedWith(
-        compareBy(
-            { it.country.name },
-            { it.city.name }
-        )
-    )
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {},
-        title = {
-            Text("Select Destination City")
+        searchText = {
+            "${it.city.name} ${it.country.name}"
         },
-        text = {
 
-            Column {
+        onItemSelected = onCitySelected,
 
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = {
-                        searchQuery = it
-                    },
-                    label = {
-                        Text("Search city or country")
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
+        onDismiss = onDismiss
 
-                Spacer(modifier = Modifier.height(8.dp))
+    ) { city ->
 
-                LazyColumn {
+        Image(
+            painter = painterResource(city.country.flagRes),
+            contentDescription = city.country.name,
+            modifier = Modifier
+                .size(28.dp)
+                .clip(RoundedCornerShape(4.dp))
+        )
 
-                    items(filteredCities) { city ->
+        Spacer(Modifier.width(12.dp))
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    onCitySelected(city)
-                                }
-                                .padding(
-                                    vertical = 10.dp,
-                                    horizontal = 8.dp
-                                ),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-
-                            Image(
-                                painter = painterResource(
-                                    city.country.flagRes
-                                ),
-                                contentDescription = city.country.name,
-                                modifier = Modifier
-                                    .size(28.dp)
-                                    .clip(RoundedCornerShape(4.dp))
-                            )
-
-                            Spacer(
-                                modifier = Modifier.width(12.dp)
-                            )
-
-                            Text(
-                                text =
-                                    "${city.city.name.replaceFirstChar { it.uppercase() }} - ${
-                                        city.country.name.replaceFirstChar { it.uppercase() }
-                                    }",
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    )
+        Text(
+            "${city.city.name.replaceFirstChar { it.uppercase() }} - ${
+                city.country.name.replaceFirstChar { it.uppercase() }
+            }",
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
 }

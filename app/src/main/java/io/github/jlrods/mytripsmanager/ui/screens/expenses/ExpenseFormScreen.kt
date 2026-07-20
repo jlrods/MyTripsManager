@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.room.Delete
 import io.github.jlrods.mytripsmanager.database.*
 import io.github.jlrods.mytripsmanager.ui.components.ProviderLogo
+import io.github.jlrods.mytripsmanager.ui.components.SearchablePickerDialog
 import io.github.jlrods.mytripsmanager.ui.components.SelectableIconField
 
 @Composable
@@ -277,60 +278,31 @@ fun ProviderPickerDialog(
     onDismiss: () -> Unit
 ) {
 
-    var searchQuery by remember { mutableStateOf("") }
+    SearchablePickerDialog(
 
-    val filteredProviders = providers
-        .filter {
-            it.name.contains(searchQuery, ignoreCase = true)
-        }
-        .sortedBy { it.name }
+        title = "Select Provider",
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {},
-        title = { Text("Select Provider") },
-        text = {
+        items = providers.sortedBy { it.name },
 
-            Column {
+        searchText = { it.name },
 
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    label = { Text("Search provider") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+        onItemSelected = onProviderSelected,
 
-                Spacer(modifier = Modifier.height(8.dp))
+        onDismiss = onDismiss
 
-                LazyColumn {
-                    items(filteredProviders) { provider ->
+    ) { provider ->
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    onProviderSelected(provider)
-                                }
-                                .padding(vertical = 10.dp, horizontal = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+        ProviderLogo(
+            logoRes = provider.logoRes,
+            logoUri = provider.logoUri,
+            modifier = Modifier.size(32.dp)
+        )
 
-                            ProviderLogo(
-                                logoRes = provider.logoRes,
-                                logoUri = provider.logoUri,
-                                modifier = Modifier.size(32.dp)
-                            )
+        Spacer(Modifier.width(12.dp))
 
-                            Spacer(modifier = Modifier.width(12.dp))
-
-                            Text(
-                                text = provider.name,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    )
+        Text(
+            provider.name,
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
 }
