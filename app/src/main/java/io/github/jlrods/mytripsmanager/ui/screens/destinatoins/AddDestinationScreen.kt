@@ -114,15 +114,6 @@ fun AddDestinationScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
-        Text(
-            text =
-                if(destinationToEdit == null)
-                    "Add Destination"
-                else
-                    "Edit Destination",
-            style = MaterialTheme.typography.titleLarge
-        )
-
         OutlinedTextField(
             value =
                 selectedCity?.city?.name

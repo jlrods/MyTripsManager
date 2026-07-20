@@ -77,15 +77,6 @@ fun ExpenseFormScreen(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(
-            if(expenseToEdit == null)
-                "Add Expense"
-            else
-                "Edit Expense",
-            style = MaterialTheme.typography.titleLarge
-        )
-
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
