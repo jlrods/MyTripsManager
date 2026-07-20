@@ -120,14 +120,11 @@ fun ExpenseFormScreen(
             SelectableIconField(
 
                 label = "Expense Type",
-
                 text = selectedType?.name
                     ?: "Select expense type",
-
                 iconRes = selectedType?.iconRes,
-
                 logoUri = selectedProvider?.logoUri,
-
+                tintIcon = true,
                 onClick = {
                     showTypeDialog = true
                 }
@@ -142,14 +139,11 @@ fun ExpenseFormScreen(
             SelectableIconField(
 
                 label = "Provider",
-
                 text = selectedProvider?.name
                     ?: "Select provider",
-
                 iconRes = selectedProvider?.logoRes,
-
                 logoUri = selectedProvider?.logoUri,
-
+                tintIcon = false,
                 onClick = {
                     showProviderDialog = true
                 }

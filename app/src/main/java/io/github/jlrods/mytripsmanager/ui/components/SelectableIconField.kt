@@ -19,15 +19,11 @@ import androidx.compose.ui.unit.dp
 fun SelectableIconField(
 
     label: String,
-
     text: String,
-
     iconRes: Int?,
-
     logoUri: String?,
-
+    tintIcon: Boolean = false,
     modifier: Modifier = Modifier,
-
     onClick: () -> Unit
 
 ) {
@@ -62,12 +58,31 @@ fun SelectableIconField(
 
         ) {
 
+//                ProviderLogo(
+//                    logoRes = iconRes,
+//                    logoUri = logoUri,
+//                    modifier = Modifier.size(40.dp)
+//                )
+            if (tintIcon && iconRes != null) {
+
+                Image(
+                    painter = painterResource(iconRes),
+                    contentDescription = null,
+                    modifier = Modifier.size(40.dp),
+                    colorFilter = ColorFilter.tint(
+                        MaterialTheme.colorScheme.onSurface
+                    )
+                )
+
+            } else {
+
                 ProviderLogo(
                     logoRes = iconRes,
                     logoUri = logoUri,
                     modifier = Modifier.size(40.dp)
                 )
 
+            }
 
                 Spacer(
                     modifier = Modifier.width(12.dp)
