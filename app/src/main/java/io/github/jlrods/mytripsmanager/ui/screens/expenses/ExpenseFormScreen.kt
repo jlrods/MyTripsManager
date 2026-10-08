@@ -17,11 +17,14 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.room.Delete
 import io.github.jlrods.mytripsmanager.database.*
 import io.github.jlrods.mytripsmanager.ui.components.ProviderLogo
 import io.github.jlrods.mytripsmanager.ui.components.SearchablePickerDialog
 import io.github.jlrods.mytripsmanager.ui.components.SelectableIconField
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun ExpenseFormScreen(
@@ -39,24 +42,131 @@ fun ExpenseFormScreen(
     var name by rememberSaveable { mutableStateOf("") }
     var cost by rememberSaveable { mutableStateOf("") }
 
-    var selectedProvider by rememberSaveable { mutableStateOf<Provider?>(null) }
-    var selectedType by rememberSaveable { mutableStateOf<ExpenseType?>(null) }
+    var selectedProvider by rememberSaveable {
+        mutableStateOf<Provider?>(null)
+    }
 
-    var showProviderDialog by rememberSaveable { mutableStateOf(false) }
-    var showTypeDialog by rememberSaveable { mutableStateOf(false) }
+    var selectedType by rememberSaveable {
+        mutableStateOf<ExpenseType?>(null)
+    }
 
-    var isCash by rememberSaveable { mutableStateOf(false) }
+    var showProviderDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var showTypeDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var isCash by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var selectedTripDay by rememberSaveable {
+        mutableStateOf(1)
+    }
+
+    var showTripDayDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    // -------------------------------------------------------------
+    // Calculate number of days in the trip
+    // -------------------------------------------------------------
+
+    val tripDays = remember(trip.start, trip.end) {
+
+        val startCalendar = Calendar.getInstance().apply {
+            timeInMillis = trip.start
+        }
+
+        val endCalendar = Calendar.getInstance().apply {
+            timeInMillis = trip.end
+        }
+
+        val startDay = startCalendar.get(Calendar.DAY_OF_YEAR)
+        val endDay = endCalendar.get(Calendar.DAY_OF_YEAR)
+
+        val startYear = startCalendar.get(Calendar.YEAR)
+        val endYear = endCalendar.get(Calendar.YEAR)
+
+        if (startYear == endYear) {
+            endDay - startDay + 1
+        } else {
+            val startMillis = trip.start
+            val endMillis = trip.end
+
+            ((endMillis - startMillis) / 86400000L).toInt() + 1
+        }
+    }
+
+    // -------------------------------------------------------------
+    // Determine how many days should currently be selectable
+    // -------------------------------------------------------------
+
+    val availableTripDays = remember(
+        trip.start,
+        trip.end,
+        tripDays
+    ) {
+
+        val now = Calendar.getInstance()
+
+        val tripStart = Calendar.getInstance().apply {
+            timeInMillis = trip.start
+        }
+
+        val tripEnd = Calendar.getInstance().apply {
+            timeInMillis = trip.end
+        }
+
+        // Remove time-of-day from comparisons
+        now.set(Calendar.HOUR_OF_DAY, 0)
+        now.set(Calendar.MINUTE, 0)
+        now.set(Calendar.SECOND, 0)
+        now.set(Calendar.MILLISECOND, 0)
+
+        tripStart.set(Calendar.HOUR_OF_DAY, 0)
+        tripStart.set(Calendar.MINUTE, 0)
+        tripStart.set(Calendar.SECOND, 0)
+        tripStart.set(Calendar.MILLISECOND, 0)
+
+        tripEnd.set(Calendar.HOUR_OF_DAY, 0)
+        tripEnd.set(Calendar.MINUTE, 0)
+        tripEnd.set(Calendar.SECOND, 0)
+        tripEnd.set(Calendar.MILLISECOND, 0)
+
+        when {
+            now.before(tripStart) -> {
+                1
+            }
+
+            now.after(tripEnd) -> {
+                tripDays
+            }
+
+            else -> {
+                val difference =
+                    (now.timeInMillis - tripStart.timeInMillis) /
+                            86400000L
+
+                (difference.toInt() + 1)
+                    .coerceIn(1, tripDays)
+            }
+        }
+    }
+
+    // -------------------------------------------------------------
+    // Initialise form when editing
+    // -------------------------------------------------------------
 
     LaunchedEffect(expenseToEdit, providers, expenseTypes) {
 
         expenseToEdit?.let { expense ->
 
-
             name = expense.name
 
             cost = expense.cost.toString()
-
-//            selectedDate = expense.date
 
             selectedProvider =
                 providers.firstOrNull {
@@ -67,7 +177,19 @@ fun ExpenseFormScreen(
                 expenseTypes.firstOrNull {
                     it.id == expense.typeId
                 }
+
             isCash = expense.isCash
+
+            selectedTripDay =
+                expense.tripDay.coerceIn(1, tripDays)
+        }
+    }
+
+    // Make sure selected day is always valid
+    LaunchedEffect(availableTripDays) {
+
+        if (selectedTripDay > availableTripDays) {
+            selectedTripDay = availableTripDays
         }
     }
 
@@ -78,19 +200,75 @@ fun ExpenseFormScreen(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+
+        // ---------------------------------------------------------
+        // EXPENSE NAME
+        // ---------------------------------------------------------
+
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
-            label = { Text("Expense Name") },
+            label = {
+                Text("Expense Name")
+            },
             modifier = Modifier.fillMaxWidth()
         )
+
+        // ---------------------------------------------------------
+        // COST
+        // ---------------------------------------------------------
 
         OutlinedTextField(
             value = cost,
             onValueChange = { cost = it },
-            label = { Text("Cost") },
+            label = {
+                Text("Cost")
+            },
             modifier = Modifier.fillMaxWidth()
         )
+
+        // ---------------------------------------------------------
+        // TRIP DAY
+        // ---------------------------------------------------------
+
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+            OutlinedTextField(
+                value = "Day $selectedTripDay — ${
+                    formatTripDayDate(
+                        trip.start,
+                        selectedTripDay
+                    )
+                }",
+                onValueChange = {},
+                readOnly = true,
+                label = {
+                    Text("Trip Day")
+                },
+                trailingIcon = {
+                    IconButton(
+                        onClick = {
+                            showTripDayDialog = true
+                        }
+                    ) {
+                        Text("▼")
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        showTripDayDialog = true
+                    }
+            )
+
+            Divider()
+        }
+
+        // ---------------------------------------------------------
+        // CASH
+        // ---------------------------------------------------------
 
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -102,15 +280,21 @@ fun ExpenseFormScreen(
 
             Switch(
                 checked = isCash,
-                onCheckedChange = { isCash = it }
+                onCheckedChange = {
+                    isCash = it
+                }
             )
         }
 
+        // ---------------------------------------------------------
         // EXPENSE TYPE
-        Column(modifier = Modifier.fillMaxWidth()) {
+        // ---------------------------------------------------------
+
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
 
             SelectableIconField(
-
                 label = "Expense Type",
                 text = selectedType?.name
                     ?: "Select expense type",
@@ -120,16 +304,20 @@ fun ExpenseFormScreen(
                 onClick = {
                     showTypeDialog = true
                 }
-
             )
+
             Divider()
         }
 
+        // ---------------------------------------------------------
         // PROVIDER
-        Column(modifier = Modifier.fillMaxWidth()) {
+        // ---------------------------------------------------------
+
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
 
             SelectableIconField(
-
                 label = "Provider",
                 text = selectedProvider?.name
                     ?: "Select provider",
@@ -139,10 +327,14 @@ fun ExpenseFormScreen(
                 onClick = {
                     showProviderDialog = true
                 }
-
             )
+
             Divider()
         }
+
+        // ---------------------------------------------------------
+        // SAVE
+        // ---------------------------------------------------------
 
         Button(
             onClick = {
@@ -155,30 +347,36 @@ fun ExpenseFormScreen(
                     selectedType == null ||
                     selectedProvider == null
                 ) {
+
                     Toast.makeText(
                         context,
                         "Please complete all fields correctly",
                         Toast.LENGTH_SHORT
                     ).show()
+
                     return@Button
                 }
 
-                if(expenseToEdit == null) {
+                // Calculate the actual date represented by the
+                // selected Trip Day.
+                val expenseDate =
+                    calculateTripDayDate(
+                        trip.start,
+                        selectedTripDay
+                    )
+
+                if (expenseToEdit == null) {
 
                     viewModel.insertExpense(
+
                         Expense(
                             name = name,
-
                             tripId = trip.id,
-
                             typeId = selectedType!!.id,
-
                             providerId = selectedProvider!!.id,
-
-                            date = System.currentTimeMillis(),
-
-                            cost = cost.toDouble(),
-
+                            date = expenseDate,
+                            tripDay = selectedTripDay,
+                            cost = parsedCost,
                             isCash = isCash
                         )
 
@@ -186,8 +384,7 @@ fun ExpenseFormScreen(
                         onSave()
                     }
 
-                }
-                else {
+                } else {
 
                     viewModel.updateExpense(
 
@@ -199,12 +396,15 @@ fun ExpenseFormScreen(
 
                             providerId = selectedProvider!!.id,
 
-//                            date = selectedDate,
+                            date = expenseDate,
 
-                            cost = cost.toDouble(),
+                            tripDay = selectedTripDay,
+
+                            cost = parsedCost,
 
                             isCash = isCash
                         )
+
                     ) {
                         onSave()
                     }
@@ -212,8 +412,9 @@ fun ExpenseFormScreen(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
+
             Text(
-                if(expenseToEdit == null)
+                if (expenseToEdit == null)
                     "Save Expense"
                 else
                     "Update Expense"
@@ -221,30 +422,106 @@ fun ExpenseFormScreen(
         }
     }
 
+    // -------------------------------------------------------------
+    // TRIP DAY DIALOG
+    // -------------------------------------------------------------
+
+    if (showTripDayDialog) {
+
+        AlertDialog(
+            onDismissRequest = {
+                showTripDayDialog = false
+            },
+            title = {
+                Text("Select Trip Day")
+            },
+            confirmButton = {},
+            text = {
+
+                LazyColumn {
+
+                    items(
+                        (1..availableTripDays).toList()
+                    ) { day ->
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+
+                                    selectedTripDay = day
+                                    showTripDayDialog = false
+                                }
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            Text(
+                                text = "Day $day",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+
+                            Spacer(
+                                Modifier.weight(1f)
+                            )
+
+                            Text(
+                                text = formatTripDayDate(
+                                    trip.start,
+                                    day
+                                ),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
+                }
+            }
+        )
+    }
+
+    // -------------------------------------------------------------
+    // PROVIDER DIALOG
+    // -------------------------------------------------------------
+
     if (showProviderDialog) {
+
         ProviderPickerDialog(
             providers = providers,
             onProviderSelected = {
                 selectedProvider = it
                 showProviderDialog = false
             },
-            onDismiss = { showProviderDialog = false }
+            onDismiss = {
+                showProviderDialog = false
+            }
         )
     }
-    // ---------------- TYPE DIALOG ----------------
+
+    // -------------------------------------------------------------
+    // TYPE DIALOG
+    // -------------------------------------------------------------
+
     if (showTypeDialog) {
 
         AlertDialog(
-            onDismissRequest = { showTypeDialog = false },
-            title = { Text("Select Expense Type") },
+            onDismissRequest = {
+                showTypeDialog = false
+            },
+            title = {
+                Text("Select Expense Type")
+            },
             confirmButton = {},
             text = {
+
                 LazyColumn {
+
                     items(expenseTypes) { type ->
+
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
+
                                     selectedType = type
                                     showTypeDialog = false
                                 }
@@ -253,14 +530,19 @@ fun ExpenseFormScreen(
                         ) {
 
                             Image(
-                                painter = painterResource(id = type.iconRes),
+                                painter = painterResource(
+                                    id = type.iconRes
+                                ),
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp),
                                 colorFilter = ColorFilter.tint(
                                     MaterialTheme.colorScheme.onSurface
                                 )
                             )
-                            Spacer(Modifier.width(12.dp))
+
+                            Spacer(
+                                Modifier.width(12.dp)
+                            )
 
                             Text(type.name)
                         }
@@ -269,6 +551,43 @@ fun ExpenseFormScreen(
             }
         )
     }
+}
+
+private fun calculateTripDayDate(
+    tripStart: Long,
+    tripDay: Int
+): Long {
+
+    val calendar = Calendar.getInstance().apply {
+        timeInMillis = tripStart
+
+        add(
+            Calendar.DAY_OF_YEAR,
+            tripDay - 1
+        )
+    }
+
+    return calendar.timeInMillis
+}
+
+private fun formatTripDayDate(
+    tripStart: Long,
+    tripDay: Int
+): String {
+
+    val date = calculateTripDayDate(
+        tripStart,
+        tripDay
+    )
+
+    val formatter = SimpleDateFormat(
+        "dd MMM yyyy",
+        Locale.getDefault()
+    )
+
+    return formatter.format(
+        Date(date)
+    )
 }
 
 @Composable
@@ -282,9 +601,13 @@ fun ProviderPickerDialog(
 
         title = "Select Provider",
 
-        items = providers.sortedBy { it.name },
+        items = providers.sortedBy {
+            it.name
+        },
 
-        searchText = { it.name },
+        searchText = {
+            it.name
+        },
 
         onItemSelected = onProviderSelected,
 
@@ -298,7 +621,9 @@ fun ProviderPickerDialog(
             modifier = Modifier.size(32.dp)
         )
 
-        Spacer(Modifier.width(12.dp))
+        Spacer(
+            Modifier.width(12.dp)
+        )
 
         Text(
             provider.name,
