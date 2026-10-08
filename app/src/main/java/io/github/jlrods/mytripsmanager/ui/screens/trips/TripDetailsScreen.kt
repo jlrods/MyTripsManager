@@ -694,7 +694,7 @@ fun TripDetailScreen(
                                                 ProviderLogo(
 
                                                     logoRes = it.logoRes,
-
+                                                    logoUri = it.logoUri,
                                                     modifier = Modifier.size(20.dp)
 
                                                 )
@@ -1018,3 +1018,4 @@ fun TripDetailScreen(
             )
         }
     }
+

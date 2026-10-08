@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import io.github.jlrods.mytripsmanager.database.CityWithCountry
+import io.github.jlrods.mytripsmanager.ui.components.SearchablePickerDialog
 
 
 @Composable
@@ -213,60 +214,36 @@ fun CountryPickerDialog(
     onCountrySelected: (Country) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var searchQuery by remember { mutableStateOf("") }
 
-    val filteredCountries = countries
-        .filter { it.name.contains(searchQuery, ignoreCase = true) }
-        .sortedBy { it.name }
+    SearchablePickerDialog(
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {},
-        title = { Text("Select Country") },
-        text = {
-            Column {
+        title = "Select Country",
 
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    label = { Text("Search") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+        items = countries.sortedBy { it.name },
 
-                Spacer(modifier = Modifier.height(8.dp))
+        searchText = { it.name },
 
-                LazyColumn {
-                    items(filteredCountries) { country ->
+        onItemSelected = onCountrySelected,
 
-                        Row(
-                            modifier = Modifier
-                                .heightIn(max = 400.dp)
-                                .fillMaxWidth()
-                                .clickable { onCountrySelected(country) }
-                                .padding(vertical = 10.dp, horizontal = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Log.d("Jose", country.name)
-                            Image(
-                                painter = painterResource(id = country.flagRes),
-                                contentDescription = country.name,
-                                modifier = Modifier
-                                    .size(28.dp)
-                                    .clip(RoundedCornerShape(4.dp))
-                            )
+        onDismiss = onDismiss
 
+    ) { country ->
 
-                            Spacer(modifier = Modifier.width(12.dp))
+        Image(
+            painter = painterResource(country.flagRes),
+            contentDescription = country.name,
+            modifier = Modifier
+                .size(28.dp)
+                .clip(RoundedCornerShape(4.dp))
+        )
 
-                            Text(
-                                text = country.name.trim().replaceFirstChar { it.uppercase() },
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    )
+        Spacer(Modifier.width(12.dp))
+
+        Text(
+            country.name.replaceFirstChar { it.uppercase() },
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
 }
+
 

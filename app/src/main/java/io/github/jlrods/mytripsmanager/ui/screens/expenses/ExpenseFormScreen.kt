@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -15,8 +17,10 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.room.Delete
 import io.github.jlrods.mytripsmanager.database.*
 import io.github.jlrods.mytripsmanager.ui.components.ProviderLogo
+import io.github.jlrods.mytripsmanager.ui.components.SearchablePickerDialog
 import io.github.jlrods.mytripsmanager.ui.components.SelectableIconField
 
 @Composable
@@ -70,18 +74,10 @@ fun ExpenseFormScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(
-            if(expenseToEdit == null)
-                "Add Expense"
-            else
-                "Edit Expense",
-            style = MaterialTheme.typography.titleLarge
-        )
-
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
@@ -116,12 +112,11 @@ fun ExpenseFormScreen(
             SelectableIconField(
 
                 label = "Expense Type",
-
                 text = selectedType?.name
                     ?: "Select expense type",
-
                 iconRes = selectedType?.iconRes,
-
+                logoUri = selectedProvider?.logoUri,
+                tintIcon = true,
                 onClick = {
                     showTypeDialog = true
                 }
@@ -136,12 +131,11 @@ fun ExpenseFormScreen(
             SelectableIconField(
 
                 label = "Provider",
-
                 text = selectedProvider?.name
                     ?: "Select provider",
-
                 iconRes = selectedProvider?.logoRes,
-
+                logoUri = selectedProvider?.logoUri,
+                tintIcon = false,
                 onClick = {
                     showProviderDialog = true
                 }
@@ -227,43 +221,16 @@ fun ExpenseFormScreen(
         }
     }
 
-    // ---------------- PROVIDER DIALOG ----------------
     if (showProviderDialog) {
-
-        AlertDialog(
-            onDismissRequest = { showProviderDialog = false },
-            title = { Text("Select Provider") },
-            confirmButton = {},
-            text = {
-                LazyColumn {
-                    items(providers) { provider ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    selectedProvider = provider
-                                    showProviderDialog = false
-                                }
-                                .padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-
-                            ProviderLogo(
-                                logoRes = provider.logoRes,
-                                logoUri = provider.logoUri,
-                                modifier = Modifier.size(28.dp)
-                            )
-
-                            Spacer(Modifier.width(12.dp))
-
-                            Text(provider.name)
-                        }
-                    }
-                }
-            }
+        ProviderPickerDialog(
+            providers = providers,
+            onProviderSelected = {
+                selectedProvider = it
+                showProviderDialog = false
+            },
+            onDismiss = { showProviderDialog = false }
         )
     }
-
     // ---------------- TYPE DIALOG ----------------
     if (showTypeDialog) {
 
@@ -300,6 +267,42 @@ fun ExpenseFormScreen(
                     }
                 }
             }
+        )
+    }
+}
+
+@Composable
+fun ProviderPickerDialog(
+    providers: List<Provider>,
+    onProviderSelected: (Provider) -> Unit,
+    onDismiss: () -> Unit
+) {
+
+    SearchablePickerDialog(
+
+        title = "Select Provider",
+
+        items = providers.sortedBy { it.name },
+
+        searchText = { it.name },
+
+        onItemSelected = onProviderSelected,
+
+        onDismiss = onDismiss
+
+    ) { provider ->
+
+        ProviderLogo(
+            logoRes = provider.logoRes,
+            logoUri = provider.logoUri,
+            modifier = Modifier.size(32.dp)
+        )
+
+        Spacer(Modifier.width(12.dp))
+
+        Text(
+            provider.name,
+            style = MaterialTheme.typography.bodyLarge
         )
     }
 }

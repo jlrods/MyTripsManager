@@ -1,9 +1,9 @@
 package io.github.jlrods.mytripsmanager.ui.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import coil.compose.AsyncImage
 
@@ -16,25 +16,31 @@ fun ProviderLogo(
 
     when {
 
-        logoRes != null -> {
+        logoRes != null && logoRes != 0 -> {
+
             Image(
                 painter = painterResource(id = logoRes),
                 contentDescription = null,
-                modifier = modifier
+                modifier = modifier,
+                contentScale = ContentScale.Fit
             )
+
         }
 
-        logoUri != null -> {
+        !logoUri.isNullOrBlank() -> {
+
             AsyncImage(
                 model = logoUri,
                 contentDescription = null,
-                modifier = modifier
+                modifier = modifier,
+                contentScale = ContentScale.Fit
             )
+
         }
 
         else -> {
-            // fallback placeholder
-            Box(modifier = modifier)
+
+            // empty fallback
         }
     }
 }

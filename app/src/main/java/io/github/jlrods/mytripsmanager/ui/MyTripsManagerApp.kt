@@ -108,9 +108,77 @@ fun MyTripsManagerApp() {
             }
         }
     ) {
+        val appBarTitle = when (currentDestination) {
+
+            AppDestinations.TRIPS -> "My Trips"
+
+            AppDestinations.ADD_TRIP -> "Add Trip"
+            AppDestinations.EDIT_TRIP -> tripToEdit?.name ?: "Trip Details"
+
+            AppDestinations.ADD_DESTINATION -> "Add Destination"
+            AppDestinations.EDIT_DESTINATION -> "Edit Destination"
+
+            AppDestinations.ADD_EXPENSE -> "Add Expense"
+            AppDestinations.EDIT_EXPENSE -> "Edit Expense"
+
+            AppDestinations.CITIES -> "Cities"
+            AppDestinations.ADD_CITY -> "Add City"
+            AppDestinations.EDIT_CITY -> "Edit City"
+
+            AppDestinations.PROVIDERS -> "Providers"
+            AppDestinations.ADD_PROVIDER -> "Add Provider"
+            AppDestinations.EDIT_PROVIDER -> "Edit Provider"
+        }
+        val showBackButton = (currentDestination != AppDestinations.TRIPS && currentDestination != AppDestinations.CITIES
+                &&  currentDestination != AppDestinations.PROVIDERS)
         Scaffold(
             modifier = Modifier.fillMaxSize(),
-            topBar = { MyTripsManagerTopAppBar() }
+//            topBar = { MyTripsManagerTopAppBar() }
+            topBar = {
+                MyTripsManagerTopAppBar(
+                    title = appBarTitle,
+                    showBackButton = showBackButton,
+                    onBack = {
+
+                        when (currentDestination) {
+
+                            AppDestinations.ADD_TRIP ->
+                                currentDestination = AppDestinations.TRIPS
+
+                            AppDestinations.EDIT_TRIP -> {
+                                selectedTripId = null
+                                currentDestination = AppDestinations.TRIPS
+                            }
+
+                            AppDestinations.ADD_DESTINATION,
+                            AppDestinations.EDIT_DESTINATION -> {
+                                selectedDestinationToEdit = null
+                                currentDestination = AppDestinations.EDIT_TRIP
+                            }
+
+                            AppDestinations.ADD_EXPENSE,
+                            AppDestinations.EDIT_EXPENSE -> {
+                                selectedExpenseToEdit = null
+                                currentDestination = AppDestinations.EDIT_TRIP
+                            }
+
+                            AppDestinations.ADD_CITY,
+                            AppDestinations.EDIT_CITY -> {
+                                selectedCityId = null
+                                currentDestination = AppDestinations.CITIES
+                            }
+
+                            AppDestinations.ADD_PROVIDER,
+                            AppDestinations.EDIT_PROVIDER -> {
+                                selectedProvider = null
+                                currentDestination = AppDestinations.PROVIDERS
+                            }
+
+                            else -> {}
+                        }
+                    }
+                )
+            }
         ) { innerPadding ->
 
             when (currentDestination) {

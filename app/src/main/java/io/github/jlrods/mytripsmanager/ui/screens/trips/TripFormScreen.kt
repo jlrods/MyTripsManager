@@ -42,9 +42,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.Alignment
+import io.github.jlrods.mytripsmanager.ui.components.SearchablePickerDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -323,53 +325,14 @@ fun TripFormScreen(
     }
 
     if (showCityDialog) {
-
-        AlertDialog(
-            onDismissRequest = { showCityDialog = false },
-            confirmButton = {},
-            title = { Text("Select Destination City") },
-            text = {
-
-                Column {
-
-                    LazyColumn {
-
-                        items(cities) { city ->
-
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-
-                                        selectedCity = city
-                                        showCityDialog = false
-                                    }
-                                    .padding(vertical = 10.dp, horizontal = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-
-                                Image(
-                                    painter = painterResource(
-                                        id = city.country.flagRes
-                                    ),
-                                    contentDescription = city.country.name,
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clip(RoundedCornerShape(4.dp))
-                                )
-
-                                Spacer(modifier = Modifier.width(12.dp))
-
-                                Text(
-                                    text = "${city.city.name.trim().replaceFirstChar { it.uppercase() }} - ${
-                                        city.country.name.trim().replaceFirstChar { it.uppercase() }
-                                    }",
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                            }
-                        }
-                    }
-                }
+        DestinationCityPickerDialog(
+            cities = cities,
+            onCitySelected = {
+                selectedCity = it
+                showCityDialog = false
+            },
+            onDismiss = {
+                showCityDialog = false
             }
         )
     }
@@ -385,4 +348,51 @@ fun formatDate(timestamp: Long): String {
     return formatter.format(
         Date(timestamp)
     )
+}
+
+@Composable
+fun DestinationCityPickerDialog(
+    cities: List<CityWithCountry>,
+    onCitySelected: (CityWithCountry) -> Unit,
+    onDismiss: () -> Unit
+) {
+
+    SearchablePickerDialog(
+
+        title = "Select Destination City",
+
+        items = cities.sortedWith(
+            compareBy(
+                { it.country.name },
+                { it.city.name }
+            )
+        ),
+
+        searchText = {
+            "${it.city.name} ${it.country.name}"
+        },
+
+        onItemSelected = onCitySelected,
+
+        onDismiss = onDismiss
+
+    ) { city ->
+
+        Image(
+            painter = painterResource(city.country.flagRes),
+            contentDescription = city.country.name,
+            modifier = Modifier
+                .size(28.dp)
+                .clip(RoundedCornerShape(4.dp))
+        )
+
+        Spacer(Modifier.width(12.dp))
+
+        Text(
+            "${city.city.name.replaceFirstChar { it.uppercase() }} - ${
+                city.country.name.replaceFirstChar { it.uppercase() }
+            }",
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
 }

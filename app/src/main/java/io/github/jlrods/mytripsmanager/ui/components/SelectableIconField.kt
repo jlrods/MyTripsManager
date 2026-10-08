@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 
@@ -18,13 +19,11 @@ import androidx.compose.ui.unit.dp
 fun SelectableIconField(
 
     label: String,
-
     text: String,
-
     iconRes: Int?,
-
+    logoUri: String?,
+    tintIcon: Boolean = false,
     modifier: Modifier = Modifier,
-
     onClick: () -> Unit
 
 ) {
@@ -59,31 +58,44 @@ fun SelectableIconField(
 
         ) {
 
-
-            if (iconRes != null) {
+//                ProviderLogo(
+//                    logoRes = iconRes,
+//                    logoUri = logoUri,
+//                    modifier = Modifier.size(40.dp)
+//                )
+            if (tintIcon && iconRes != null) {
 
                 Image(
-
-                    painter = painterResource(id = iconRes),
+                    painter = painterResource(iconRes),
                     contentDescription = null,
+                    modifier = Modifier.size(40.dp),
                     colorFilter = ColorFilter.tint(
                         MaterialTheme.colorScheme.onSurface
-                    ),
-                    modifier = Modifier.size(28.dp)
+                    )
                 )
 
+            } else {
+
+                ProviderLogo(
+                    logoRes = iconRes,
+                    logoUri = logoUri,
+                    modifier = Modifier.size(40.dp)
+                )
+
+            }
 
                 Spacer(
                     modifier = Modifier.width(12.dp)
                 )
-            }
 
 
             Text(
 
                 text = text,
-
-                style = MaterialTheme.typography.bodyLarge
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
 
             )
 

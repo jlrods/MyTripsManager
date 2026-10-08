@@ -1,6 +1,8 @@
 package io.github.jlrods.mytripsmanager.ui.components
 
+import android.R.attr.navigationIcon
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MoreVert
@@ -18,16 +20,40 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyTripsManagerTopAppBar(modifier: Modifier = Modifier) {
+fun MyTripsManagerTopAppBar(title: String = "My Trips",
+                            showBackButton: Boolean = false,
+                            onBack: (() -> Unit)? = null,
+                            modifier: Modifier = Modifier) {
     var menuExpanded by remember { mutableStateOf(false) }
 
     TopAppBar(
-        title = { Text("My Trips") },
+        title = {
+            Text(title)
+        },
+        navigationIcon = {
+
+            if (showBackButton) {
+
+                IconButton(
+                    onClick = { onBack?.invoke() }
+                ) {
+
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                }
+            }
+        },
         modifier = modifier,
         actions = {
+
+            if (!showBackButton) {
+
             IconButton(onClick = { /* TODO: Filter by name */ }) {
                 Icon(
                     imageVector = Icons.Default.Search,
@@ -71,6 +97,7 @@ fun MyTripsManagerTopAppBar(modifier: Modifier = Modifier) {
                     }
                 )
             }
-        }
+            }   // <-- closes the if
+        }       // <-- closes actions
     )
 }
