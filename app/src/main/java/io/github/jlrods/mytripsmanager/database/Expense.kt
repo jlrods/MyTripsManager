@@ -35,6 +35,7 @@ data class Expense(
     val typeId: Int,
     val providerId: Int,
     val date: Long,
+    val tripDay: Int = 1,
     val cost: Double,
-    val isCash: Boolean = false   // ⭐ NEW
+    val isCash: Boolean = false
 )

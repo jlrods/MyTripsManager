@@ -282,7 +282,15 @@ object InitialData {
             Provider(name = "laya healthcare", logoRes = R.drawable.logo_laya),
             Provider(name = "irish life health", logoRes = R.drawable.logo_irishlife),
             Provider(name = "aviva", logoRes = R.drawable.logo_aviva),
-            Provider(name = "axa", logoRes = R.drawable.logo_axa)
+            Provider(name = "axa", logoRes = R.drawable.logo_axa),
+            Provider(name = "generic restaurant"),
+            Provider(name = "generic store"),
+            Provider(name = "generic pharmacy"),
+            Provider(name = "generic hotel"),
+            Provider(name = "generic taxi"),
+            Provider(name = "generic attraction"),
+            Provider(name = "generic supermarket"),
+            Provider(name = "generic transport")
         )
     }
 
