@@ -56,6 +56,53 @@ import io.github.jlrods.mytripsmanager.database.Trip
 import io.github.jlrods.mytripsmanager.ui.components.ProviderLogo
 import io.github.jlrods.mytripsmanager.ui.screens.cities.CitiesViewModel
 import io.github.jlrods.mytripsmanager.ui.screens.expenses.ExpensesViewModel
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+
+private fun getTripDayCount(
+    start: Long,
+    end: Long
+): Int {
+
+    val startCalendar = Calendar.getInstance().apply {
+        timeInMillis = start
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }
+
+    val endCalendar = Calendar.getInstance().apply {
+        timeInMillis = end
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }
+
+    var days = 1
+
+    while (startCalendar.before(endCalendar)) {
+        startCalendar.add(Calendar.DAY_OF_YEAR, 1)
+        days++
+    }
+
+    return days
+}
+
+private fun getDateForTripDay(
+    tripStart: Long,
+    tripDay: Int
+): Long {
+
+    return Calendar.getInstance().apply {
+        timeInMillis = tripStart
+        add(Calendar.DAY_OF_YEAR, tripDay - 1)
+    }.timeInMillis
+}
 
 enum class SelectionMode {
     NONE,
@@ -97,6 +144,10 @@ fun TripDetailScreen(
         mutableStateOf("")
     }
 
+    var collapsedDays by rememberSaveable {
+        mutableStateOf<Set<Int>>(emptySet())
+    }
+
 
     LaunchedEffect(tripToEdit?.id) {
 
@@ -114,6 +165,18 @@ fun TripDetailScreen(
 
             cashBudget =
                 it.cashBudget.toString()
+        }
+    }
+    LaunchedEffect(tripToEdit?.id, tripToEdit?.start, tripToEdit?.end) {
+
+        tripToEdit?.let { trip ->
+
+            val dayCount = getTripDayCount(
+                start = trip.start,
+                end = trip.end
+            )
+
+            collapsedDays = (1..dayCount).toSet()
         }
     }
 
@@ -587,163 +650,306 @@ fun TripDetailScreen(
                     } else {
 
 
-                        expenses.forEach { expense ->
+                        val tripDayCount = getTripDayCount(
+                            start = trip.start,
+                            end = trip.end
+                        )
 
-                            val provider =
-                                providers.firstOrNull {
-                                    it.id == expense.providerId
-                                }
+                        val expensesByDay = expenses.groupBy {
+                            it.tripDay
+                        }
 
-                            val type =
-                                expenseTypes.firstOrNull {
-                                    it.id == expense.typeId
-                                }
-                            val isSelected =
-                                selectedExpenses.contains(
-                                    expense.id
+                        for (day in 1..tripDayCount) {
+
+                            val dayExpenses =
+                                expensesByDay[day].orEmpty()
+
+                            val dailyCashSpent =
+                                dayExpenses
+                                    .filter { it.isCash }
+                                    .sumOf { it.cost }
+
+                            val isCollapsed =
+                                collapsedDays.contains(day)
+
+                            val dayDate =
+                                getDateForTripDay(
+                                    tripStart = trip.start,
+                                    tripDay = day
                                 )
-                            Column(
 
+                            /*
+                             * Day header
+                             */
+                            Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 8.dp)
+                                    .clip(RoundedCornerShape(8.dp))
                                     .background(
-                                        if (isSelected)
-                                            MaterialTheme.colorScheme.primaryContainer
-                                        else
-                                            Color.Transparent
+                                        MaterialTheme.colorScheme.surfaceVariant
                                     )
                                     .combinedClickable(
                                         onClick = {
-                                            if (selectionMode == SelectionMode.EXPENSE) {
-                                                selectedExpenses =
-                                                    if (selectedExpenses.contains(expense.id)) {
-                                                        selectedExpenses - expense.id
-                                                    } else {
-                                                        selectedExpenses + expense.id
-                                                    }
-                                            } else {
-                                                // Normal mode -> edit destination
-                                                onEditExpenseClick(
-                                                    expense
-                                                )
-                                            }
+
+                                            collapsedDays =
+                                                if (isCollapsed) {
+                                                    collapsedDays - day
+                                                } else {
+                                                    collapsedDays + day
+                                                }
                                         },
-
                                         onLongClick = {
-
-                                            selectionMode = SelectionMode.EXPENSE
-
-                                            selectedDestinations = emptySet()
-
-                                            selectedExpenses =
-                                                setOf(expense.id)
+                                            // Nothing here.
+                                            // Long-pressing the day header does not
+                                            // enter expense selection mode.
                                         }
                                     )
+                                    .padding(
+                                        horizontal = 12.dp,
+                                        vertical = 10.dp
+                                    ),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
 
+                                Icon(
+                                    imageVector =
+                                        if (isCollapsed)
+                                            Icons.Default.KeyboardArrowDown
+                                        else
+                                            Icons.Default.KeyboardArrowUp,
+                                    contentDescription =
+                                        if (isCollapsed)
+                                            "Expand Day $day"
+                                        else
+                                            "Collapse Day $day"
+                                )
 
-                                    ) {
+                                Spacer(Modifier.width(8.dp))
 
-
-                                Row(
-
-                                    verticalAlignment = Alignment.CenterVertically
-
+                                Column(
+                                    modifier = Modifier.weight(1f)
                                 ) {
-                                    // Expense Type icon
 
-                                    type?.let {
-
-
-                                        Image(
-
-                                            painter = painterResource(id = it.iconRes),
-                                            contentDescription = null,
-                                            modifier = Modifier.size(32.dp),
-                                            colorFilter = ColorFilter.tint(
-                                                    MaterialTheme.colorScheme.onSurface
-                                                    )
-                                        )
-
-                                    }
-
-                                    Spacer(
-                                        Modifier.width(12.dp)
-                                    )
-                                    Column {
-
-
-                                        Text(
-
-                                            text = expense.name,
-
-                                            style = MaterialTheme.typography.bodyLarge
-
-                                        )
-
-                                        Row(
-
-                                            verticalAlignment = Alignment.CenterVertically
-
-                                        ) {
-
-
-                                            provider?.let {
-
-
-                                                ProviderLogo(
-
-                                                    logoRes = it.logoRes,
-                                                    logoUri = it.logoUri,
-                                                    modifier = Modifier.size(20.dp)
-
-                                                )
-
-
-                                                Spacer(
-                                                    Modifier.width(6.dp)
-                                                )
-
-                                            }
-
-
-                                            Text(
-
-                                                text =
-                                                    provider?.name
-                                                        ?: "Unknown provider",
-
-                                                style =
-                                                    MaterialTheme.typography.bodyMedium
-
-                                            )
-
-                                        }
-
-
-                                    }
-
-                                    Spacer(
-                                        Modifier.weight(1f)
+                                    Text(
+                                        text = "Day $day",
+                                        style = MaterialTheme.typography.titleSmall
                                     )
 
                                     Text(
-
-                                        text =
-                                            "€%.2f".format(expense.cost),
-
-                                        style =
-                                            MaterialTheme.typography.bodyLarge
-
+                                        text = formatDate(dayDate),
+                                        style = MaterialTheme.typography.bodySmall
                                     )
-
-
                                 }
 
+                                Text(
+                                    text = "€%.2f".format(dailyCashSpent),
+                                    style = MaterialTheme.typography.titleSmall
+                                )
                             }
 
-                        }
+                            /*
+                             * Expenses belonging to this day
+                             */
+                            if (!isCollapsed) {
 
+                                if (dayExpenses.isEmpty()) {
+
+                                    Text(
+                                        text = "No expenses",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.padding(
+                                            start = 44.dp,
+                                            top = 4.dp,
+                                            bottom = 12.dp
+                                        )
+                                    )
+
+                                } else {
+
+                                    dayExpenses.forEach { expense ->
+
+                                        val provider =
+                                            providers.firstOrNull {
+                                                it.id == expense.providerId
+                                            }
+
+                                        val type =
+                                            expenseTypes.firstOrNull {
+                                                it.id == expense.typeId
+                                            }
+
+                                        val isSelected =
+                                            selectedExpenses.contains(
+                                                expense.id
+                                            )
+
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(
+                                                    start = 16.dp,
+                                                    top = 4.dp,
+                                                    bottom = 4.dp
+                                                )
+                                                .background(
+                                                    if (isSelected)
+                                                        MaterialTheme.colorScheme.primaryContainer
+                                                    else
+                                                        Color.Transparent
+                                                )
+                                                .combinedClickable(
+
+                                                    onClick = {
+
+                                                        if (
+                                                            selectionMode ==
+                                                            SelectionMode.EXPENSE
+                                                        ) {
+
+                                                            selectedExpenses =
+                                                                if (
+                                                                    selectedExpenses.contains(
+                                                                        expense.id
+                                                                    )
+                                                                ) {
+
+                                                                    selectedExpenses -
+                                                                            expense.id
+
+                                                                } else {
+
+                                                                    selectedExpenses +
+                                                                            expense.id
+                                                                }
+
+                                                        } else {
+
+                                                            onEditExpenseClick(
+                                                                expense
+                                                            )
+                                                        }
+                                                    },
+
+                                                    onLongClick = {
+
+                                                        selectionMode =
+                                                            SelectionMode.EXPENSE
+
+                                                        selectedDestinations =
+                                                            emptySet()
+
+                                                        selectedExpenses =
+                                                            setOf(expense.id)
+                                                    }
+                                                )
+                                                .padding(
+                                                    vertical = 8.dp
+                                                )
+                                        ) {
+
+                                            Row(
+                                                verticalAlignment =
+                                                    Alignment.CenterVertically
+                                            ) {
+
+                                                /*
+                                                 * Expense type icon
+                                                 */
+                                                type?.let {
+
+                                                    Image(
+                                                        painter =
+                                                            painterResource(
+                                                                id = it.iconRes
+                                                            ),
+                                                        contentDescription = null,
+                                                        modifier =
+                                                            Modifier.size(32.dp),
+                                                        colorFilter =
+                                                            ColorFilter.tint(
+                                                                MaterialTheme
+                                                                    .colorScheme
+                                                                    .onSurface
+                                                            )
+                                                    )
+                                                }
+
+                                                Spacer(
+                                                    Modifier.width(12.dp)
+                                                )
+
+                                                /*
+                                                 * Expense name + provider
+                                                 */
+                                                Column {
+
+                                                    Text(
+                                                        text = expense.name,
+                                                        style =
+                                                            MaterialTheme
+                                                                .typography
+                                                                .bodyLarge
+                                                    )
+
+                                                    Row(
+                                                        verticalAlignment =
+                                                            Alignment.CenterVertically
+                                                    ) {
+
+                                                        provider?.let {
+
+                                                            ProviderLogo(
+                                                                logoRes =
+                                                                    it.logoRes,
+                                                                logoUri =
+                                                                    it.logoUri,
+                                                                modifier =
+                                                                    Modifier.size(
+                                                                        20.dp
+                                                                    )
+                                                            )
+
+                                                            Spacer(
+                                                                Modifier.width(6.dp)
+                                                            )
+                                                        }
+
+                                                        Text(
+                                                            text =
+                                                                provider?.name
+                                                                    ?: "Unknown provider",
+                                                            style =
+                                                                MaterialTheme
+                                                                    .typography
+                                                                    .bodyMedium
+                                                        )
+                                                    }
+                                                }
+
+                                                Spacer(
+                                                    Modifier.weight(1f)
+                                                )
+
+                                                /*
+                                                 * Expense amount
+                                                 */
+                                                Text(
+                                                    text =
+                                                        "€%.2f".format(
+                                                            expense.cost
+                                                        ),
+                                                    style =
+                                                        MaterialTheme
+                                                            .typography
+                                                            .bodyLarge
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 
